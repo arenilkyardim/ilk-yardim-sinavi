@@ -523,7 +523,7 @@ export default function App() {
               <HeartPulse className="text-white" size={32} />
             </div>
             <div className="text-left">
-              <h1 id="main-title" className={`text-3xl sm:text-4xl font-black tracking-tighter leading-none uppercase ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+              <h1 id="main-title" className={`text-3xl sm:text-3xl sm:text-4xl font-black tracking-tighter leading-none uppercase ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                 Solunum <span className="text-red-600">İlk Yardım</span>
               </h1>
               <div className="flex items-center gap-2 mt-1">
@@ -564,7 +564,7 @@ export default function App() {
         </motion.div>
       </header>
 
-      <main className={`w-full max-w-lg rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] overflow-hidden border relative transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-red-900/10' : 'bg-white border-slate-100'}`} role="main">
+      <main className={`w-full max-w-lg rounded-[2rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] overflow-hidden border relative transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-red-900/10' : 'bg-white border-slate-100'}`} role="main">
         
         <AnimatePresence mode="wait">
           {view === 'start' && (
@@ -573,7 +573,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="p-10 sm:p-16 text-center"
+              className="p-6 sm:p-16 text-center"
               role="region"
               aria-labelledby="main-title"
             >
@@ -583,7 +583,7 @@ export default function App() {
                   <GraduationCap className="text-slate-500" size={20} />
                 </div>
               </div>
-              <h2 className={`text-3xl font-black mb-4 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Hoş Geldiniz</h2>
+              <h2 className={`text-2xl sm:text-3xl font-black mb-4 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Hoş Geldiniz</h2>
               <p className={`mb-12 font-medium leading-relaxed px-4 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                 Bilginizi ölçmek ve ilk yardım becerilerinizi tazelemek için hazırlanan profesyonel eğitim platformuna başlayabilirsiniz.
               </p>
@@ -597,7 +597,7 @@ export default function App() {
                     placeholder="Adınız Soyadınız"
                     aria-label="Adınız Soyadınız"
                     aria-required="true"
-                    className={`w-full p-6 rounded-[2rem] border-2 outline-none transition-all font-bold shadow-sm text-lg focus-visible:ring-red-500 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-600 focus:border-red-500' : 'bg-white border-slate-100 text-slate-800 placeholder:text-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-50'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 outline-none transition-all font-bold shadow-sm text-lg focus-visible:ring-red-500 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-600 focus:border-red-500' : 'bg-white border-slate-100 text-slate-800 placeholder:text-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-50'}`}
                   />
                 </div>
                 
@@ -605,7 +605,7 @@ export default function App() {
                   onClick={() => studentName.trim() && setView('menu')}
                   disabled={!studentName.trim()}
                   aria-label="Devam Et"
-                  className="w-full bg-red-600 text-white py-6 rounded-[2rem] font-black text-xl hover:bg-red-700 transition-all shadow-2xl shadow-red-200 disabled:opacity-50 disabled:shadow-none active:scale-95 flex items-center justify-center gap-3 focus-visible:ring-4 focus-visible:ring-red-200 outline-none"
+                  className="w-full bg-red-600 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl hover:bg-red-700 transition-all shadow-2xl shadow-red-200 disabled:opacity-50 disabled:shadow-none active:scale-95 flex items-center justify-center gap-3 focus-visible:ring-4 focus-visible:ring-red-200 outline-none"
                 >
                   Devam Et <ChevronRight size={24} aria-hidden="true" />
                 </button>
@@ -643,17 +643,17 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="mb-10">
                 <p className="text-red-600 font-black text-xs uppercase tracking-[0.3em] mb-2">Hoş Geldin,</p>
-                <h2 className={`text-3xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{studentName}</h2>
+                <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{studentName}</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
                 <button
                   onClick={() => setView('group-select')}
-                  className={`w-full p-6 rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                 >
                   <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-white transition-colors">
                     <BookOpen size={28} />
@@ -667,7 +667,7 @@ export default function App() {
 
                 <button
                   onClick={() => setView('scenarios')}
-                  className={`w-full p-6 rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                 >
                   <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     <MessageCircle size={28} />
@@ -681,7 +681,7 @@ export default function App() {
 
                 <button
                   onClick={() => setView('guide')}
-                  className={`w-full p-6 rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                 >
                   <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 group-hover:bg-green-600 group-hover:text-white transition-colors">
                     <Info size={28} />
@@ -693,7 +693,7 @@ export default function App() {
                   <ChevronRight className="ml-auto text-slate-300 group-hover:text-green-500" size={24} />
                 </button>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
                   <button
                     onClick={() => setView('about')}
                     className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-red-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
@@ -733,20 +733,20 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Modu Seçin</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Modu Seçin</h2>
               </div>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <button
                     onClick={() => startQuiz(1, 'normal')}
-                    className={`w-full p-6 rounded-[2rem] border-2 text-left hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-red-600 font-black text-xs uppercase tracking-widest">Normal Mod</p>
@@ -758,7 +758,7 @@ export default function App() {
 
                   <button
                     onClick={() => startQuiz(1, 'time-attack')}
-                    className={`w-full p-6 rounded-[2rem] border-2 text-left hover:border-orange-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-orange-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-orange-600 font-black text-xs uppercase tracking-widest">Zamana Karşı</p>
@@ -770,7 +770,7 @@ export default function App() {
 
                   <button
                     onClick={() => startQuiz(1, 'perfect')}
-                    className={`w-full p-6 rounded-[2rem] border-2 text-left hover:border-purple-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-purple-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-purple-600 font-black text-xs uppercase tracking-widest">Hatasız Mod</p>
@@ -782,7 +782,7 @@ export default function App() {
 
                   <button
                     onClick={() => startQuiz('marathon', 'normal')}
-                    className={`w-full p-6 rounded-[2rem] border-2 text-left hover:border-blue-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-blue-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-blue-600 font-black text-xs uppercase tracking-widest">Maraton</p>
@@ -802,13 +802,13 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>İnteraktif Senaryolar</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>İnteraktif Senaryolar</h2>
               </div>
 
               <div className="space-y-4">
@@ -816,7 +816,7 @@ export default function App() {
                   <button
                     key={scenario.id}
                     onClick={() => startScenario(scenario)}
-                    className={`w-full p-6 rounded-[2rem] border-2 text-left hover:border-blue-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-blue-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <h3 className={`text-xl font-black mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{scenario.title}</h3>
                     <p className="text-slate-500 text-sm font-medium">{scenario.description}</p>
@@ -831,7 +831,7 @@ export default function App() {
               key="scenario-play"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('scenarios')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
@@ -892,18 +892,18 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Hızlı Rehber</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Hızlı Rehber</h2>
               </div>
 
               <div className="space-y-4">
                 {GUIDE_ITEMS.map((item, idx) => (
-                  <div key={idx} className={`p-6 rounded-[2rem] border-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
+                  <div key={idx} className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="p-2 bg-red-50 text-red-500 rounded-xl">
                         {item.icon}
@@ -923,13 +923,13 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Hakkımızda</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Hakkımızda</h2>
               </div>
 
               <div className="space-y-8">
@@ -989,18 +989,18 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>İletişim</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>İletişim</h2>
               </div>
 
               <div className="space-y-8">
                 <div className="space-y-4">
-                  <div className={`p-6 rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-red-500'}`}>
+                  <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-red-500'}`}>
                     <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 shrink-0">
                       <Phone size={24} />
                     </div>
@@ -1011,7 +1011,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className={`p-6 rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-red-500'}`}>
+                  <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-red-500'}`}>
                     <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 shrink-0">
                       <MapPin size={24} />
                     </div>
@@ -1063,7 +1063,7 @@ export default function App() {
                 
                 <div className="mt-6">
                   <h2 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${theme === 'dark' ? 'text-slate-500' : 'text-white/80'}`}>{studentName}</h2>
-                  <p className={`text-2xl font-black leading-none tracking-tight ${theme === 'dark' ? 'text-white' : 'text-white'}`}>Soru {currentStep + 1} <span className="text-red-100 text-sm font-bold ml-1 opacity-90">/ {activeQuestions.length}</span></p>
+                  <p className={`text-xl sm:text-2xl font-black leading-none tracking-tight ${theme === 'dark' ? 'text-white' : 'text-white'}`}>Soru {currentStep + 1} <span className="text-red-100 text-sm font-bold ml-1 opacity-90">/ {activeQuestions.length}</span></p>
                 </div>
                 <div 
                   className={`mt-6 flex items-center gap-3 px-6 py-3 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-red-700 border-red-400'} ${timeLeft <= 5 ? 'animate-pulse border-white' : ''}`}
@@ -1179,7 +1179,7 @@ export default function App() {
                           animate={{ opacity: 1, y: 0 }}
                           onClick={nextQuestion} 
                           aria-label="Sonraki soruya geç"
-                          className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:bg-slate-800 transition-all shadow-2xl active:scale-95 focus-visible:ring-4 focus-visible:ring-slate-200 outline-none"
+                          className="w-full bg-slate-900 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-slate-800 transition-all shadow-2xl active:scale-95 focus-visible:ring-4 focus-visible:ring-slate-200 outline-none"
                         >
                           Sıradaki Soru <ChevronRight size={28} aria-hidden="true" />
                         </motion.button>
@@ -1189,7 +1189,7 @@ export default function App() {
                           animate={{ opacity: 1, y: 0 }}
                           onClick={finishQuiz} 
                           aria-label="Sınavı bitir ve sonuçları gör"
-                          className="w-full bg-red-600 text-white py-6 rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:bg-red-700 transition-all shadow-2xl active:scale-95 focus-visible:ring-4 focus-visible:ring-red-200 outline-none"
+                          className="w-full bg-red-600 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-red-700 transition-all shadow-2xl active:scale-95 focus-visible:ring-4 focus-visible:ring-red-200 outline-none"
                         >
                           Sınavı Bitir <Award size={28} aria-hidden="true" />
                         </motion.button>
@@ -1228,7 +1228,7 @@ export default function App() {
               key="result" 
               initial={{ opacity: 0, scale: 0.9 }} 
               animate={{ opacity: 1, scale: 1 }} 
-              className="p-10 sm:p-16 text-center"
+              className="p-6 sm:p-16 text-center"
               role="region"
               aria-label="Sınav Sonucu"
             >
@@ -1246,7 +1246,7 @@ export default function App() {
               
               <div className="mb-10">
                 <p className="text-red-600 font-black text-xs uppercase tracking-[0.4em] mb-3">Sınav Tamamlandı</p>
-                <h2 className={`text-4xl font-black tracking-tight mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{studentName}</h2>
+                <h2 className={`text-3xl sm:text-4xl font-black tracking-tight mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{studentName}</h2>
                 <div className="flex items-center justify-center gap-2">
                   <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
                     {quizMode === 'time-attack' ? 'Zamana Karşı' : quizMode === 'perfect' ? 'Hatasız Mod' : quizMode === 'marathon' ? 'Maraton' : 'Normal Mod'}
@@ -1257,24 +1257,24 @@ export default function App() {
               <div className="grid grid-cols-2 gap-6 mb-12">
                 <div className={`p-8 rounded-[2.5rem] border-2 shadow-sm ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-50'}`}>
                   <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Doğru</p>
-                  <p className="text-4xl font-black text-green-500 tabular-nums">{score}</p>
+                  <p className="text-3xl sm:text-4xl font-black text-green-500 tabular-nums">{score}</p>
                 </div>
                 <div className={`p-8 rounded-[2.5rem] border-2 shadow-sm ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-50'}`}>
                   <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Yanlış</p>
-                  <p className="text-4xl font-black text-red-500 tabular-nums">{activeQuestions.length - score}</p>
+                  <p className="text-3xl sm:text-4xl font-black text-red-500 tabular-nums">{activeQuestions.length - score}</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
                 <button 
                   onClick={handleWhatsAppShare}
-                  className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:bg-slate-800 transition-all shadow-xl active:scale-95"
+                  className="w-full bg-slate-900 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-slate-800 transition-all shadow-xl active:scale-95"
                 >
                   WhatsApp ile Gönder <Share2 size={24} />
                 </button>
                 <button 
                   onClick={goBack} 
-                  className={`w-full py-6 rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 border-2 transition-all active:scale-95 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-700' : 'bg-white border-slate-100 text-slate-800 hover:bg-slate-50'}`}
+                  className={`w-full py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl flex items-center justify-center gap-4 border-2 transition-all active:scale-95 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-700' : 'bg-white border-slate-100 text-slate-800 hover:bg-slate-50'}`}
                 >
                   Ana Menüye Dön <ArrowLeft size={24} />
                 </button>
@@ -1287,13 +1287,13 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Eğitmen Girişi</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Eğitmen Girişi</h2>
               </div>
               <div className="space-y-4">
                 <p className={`text-sm font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Paneli görüntülemek için eğitmen şifresini giriniz:</p>
@@ -1315,13 +1315,13 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-10 sm:p-16"
+              className="p-6 sm:p-16"
             >
               <div className="flex items-center gap-4 mb-10">
                 <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Sonuçları</h2>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Sonuçları</h2>
               </div>
               <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                 {scoresList.length === 0 ? (
@@ -1359,7 +1359,7 @@ export default function App() {
                 <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                   <RotateCcw size={40} />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-4">Emin misiniz?</h3>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-4">Emin misiniz?</h3>
                 <p className="text-slate-600 mb-8 font-medium leading-relaxed">Sınavdan çıkmak üzeresiniz. Mevcut ilerlemeniz ve skorunuz silinecektir.</p>
                 <div className="flex flex-col gap-3">
                   <button 
