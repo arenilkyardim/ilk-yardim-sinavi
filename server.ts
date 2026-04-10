@@ -7,6 +7,8 @@ import fs from "fs/promises";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const SCORES_FILE = path.join(__dirname, 'scores.json');
+const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
+
 
 async function startServer() {
   const app = express();
@@ -46,6 +48,30 @@ async function startServer() {
       res.json(JSON.parse(fileContent));
     } catch (e) {
       res.json([]);
+    }
+  });
+
+  app.get("/api/questions", async (req, res) => {
+    try {
+      const fileContent = await fs.readFile(QUESTIONS_FILE, 'utf-8');
+      res.json(JSON.parse(fileContent));
+    } catch (e) {
+      res.status(404).json({ error: "Not found" });
+    }
+  });
+
+  app.post("/api/questions", async (req, res) => {
+    const pin = req.query.pin;
+    if (pin !== "2007") {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    try {
+      const qs = req.body;
+      await fs.writeFile(QUESTIONS_FILE, JSON.stringify(qs, null, 2));
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: "Could not save questions" });
     }
   });
 

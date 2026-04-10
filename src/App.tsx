@@ -216,6 +216,22 @@ export default function App() {
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [adminPin, setAdminPin] = useState('');
   const [scoresList, setScoresList] = useState<any[]>([]);
+  const [loadedQuestions, setLoadedQuestions] = useState<Question[]>(QUESTIONS);
+  const [adminTab, setAdminTab] = useState<'scores' | 'questions'>('scores');
+  const [adminQuestions, setAdminQuestions] = useState<Question[]>([]);
+  const [newQuestion, setNewQuestion] = useState<Partial<Question>>({ options: ['', '', '', ''], correct: 0 });
+
+  useEffect(() => {
+    fetch('/api/questions')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setLoadedQuestions(data);
+        } else {
+          fetch('/api/questions?pin=2007', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(QUESTIONS) });
+        }
+      }).catch(e => console.log('Questions fetch error'));
+  }, []);
 
   const playSound = (type: 'correct' | 'wrong') => {
     try {
@@ -260,10 +276,10 @@ export default function App() {
     let selectedQuestions: Question[] = [];
     
     if (group === 'marathon') {
-      selectedQuestions = QUESTIONS;
+      selectedQuestions = loadedQuestions;
     } else {
       const startIndex = (group - 1) * 25;
-      selectedQuestions = QUESTIONS.slice(startIndex, startIndex + 25);
+      selectedQuestions = loadedQuestions.slice(startIndex, startIndex + 25);
     }
 
     setActiveQuestions(shuffleQuestions(selectedQuestions));
@@ -328,6 +344,7 @@ export default function App() {
         body: JSON.stringify({
           name: studentName,
           score: score,
+          wrongAnswers: activeQuestions.filter(q => wrongIds.includes(q.id)).map(q => q.question),
           totalQuestions: activeQuestions.length,
           mode: quizMode
         })
@@ -387,6 +404,13 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setScoresList(data);
+        const qRes = await fetch('/api/questions');
+        if (qRes.ok) {
+           const qData = await qRes.json();
+           setAdminQuestions(qData && qData.length > 0 ? qData : QUESTIONS);
+        } else {
+           setAdminQuestions(QUESTIONS);
+        }
         setView('admin-dashboard');
       } else {
         alert("Hatalı şifre!");
@@ -394,6 +418,33 @@ export default function App() {
     } catch (e) {
       alert("Hata oluştu.");
     }
+  };
+
+  
+  const handleSaveQuestion = async () => {
+    if(!newQuestion.question || newQuestion.options?.some(o=>!o)) return alert("Lütfen tüm alanları doldurun");
+    const updated = [...adminQuestions];
+    if(newQuestion.id) {
+       const idx = updated.findIndex(q=>q.id === newQuestion.id);
+       updated[idx] = newQuestion as Question;
+    } else {
+       updated.push({ ...newQuestion, id: Date.now() } as Question);
+    }
+    setAdminQuestions(updated);
+    setLoadedQuestions(updated);
+    try {
+      await fetch(`/api/questions?pin=${adminPin}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(updated)});
+      setNewQuestion({ options: ['', '', '', ''], correct: 0, question: '', explanation: '' });
+      alert("Soru başarıyla kaydedildi!");
+    } catch(e) { alert("Kaydetme hatası"); }
+  };
+  
+  const handleDeleteQuestion = async (id: number) => {
+    if(!confirm("Soryu silmek istediğinize emin misiniz?")) return;
+    const updated = adminQuestions.filter(q=>q.id !== id);
+    setAdminQuestions(updated);
+    setLoadedQuestions(updated);
+    await fetch(`/api/questions?pin=${adminPin}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(updated)});
   };
 
   const handleWhatsAppShare = () => {
