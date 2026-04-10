@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, XCircle, ChevronRight, RotateCcw, Award, Timer, ArrowLeft, HeartPulse, GraduationCap, Instagram, Phone, Globe, MapPin, Info, BookOpen, MessageCircle, Share2, Facebook, Youtube, Volume2, Loader2 } from 'lucide-react';
 import { GoogleGenAI, Modality } from "@google/genai";
-
+import confetti from 'canvas-confetti';
 interface Question {
   id: number;
   question: string;
@@ -194,7 +194,7 @@ const TIME_PER_QUESTION = 30;
 const TIME_ATTACK_LIMIT = 15;
 
 export default function App() {
-  const [view, setView] = useState<'start' | 'menu' | 'group-select' | 'about' | 'contact' | 'quiz' | 'result' | 'scenarios' | 'guide' | 'scenario-play'>('start');
+  const [view, setView] = useState<'start' | 'menu' | 'group-select' | 'about' | 'contact' | 'quiz' | 'result' | 'scenarios' | 'guide' | 'scenario-play' | 'admin-login' | 'admin-dashboard'>('start');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [quizMode, setQuizMode] = useState<'normal' | 'time-attack' | 'perfect' | 'marathon'>('normal');
   const [activeScenario, setActiveScenario] = useState<Scenario | null>(null);
@@ -214,6 +214,37 @@ export default function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
+  const [adminPin, setAdminPin] = useState('');
+  const [scoresList, setScoresList] = useState<any[]>([]);
+
+  const playSound = (type: 'correct' | 'wrong') => {
+    try {
+      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.2);
+      } else {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.2);
+      }
+    } catch(e) {}
+  };
 
   const shuffleQuestions = (questions: Question[]) => {
     const shuffled = [...questions];
@@ -263,9 +294,11 @@ export default function App() {
     }
 
     if (isCorrect) {
+      playSound('correct');
       newScore += 1;
       setScore(newScore);
     } else {
+      playSound('wrong');
       newWrongs.push(currentQ.id);
       setWrongIds(newWrongs);
       
@@ -278,8 +311,29 @@ export default function App() {
     }
   }, [currentStep, isAnswered, score, wrongIds, answers, activeQuestions, quizMode]);
 
-  const finishQuiz = () => {
+  const finishQuiz = async () => {
     setIsQuizFinished(true);
+    
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#ffffff']
+    });
+
+    try {
+      await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: studentName,
+          score: score,
+          totalQuestions: activeQuestions.length,
+          mode: quizMode
+        })
+      });
+    } catch(e) { console.error('Failed to save score', e); }
+
     setTimeout(() => {
       setView('result');
       setIsQuizFinished(false);
@@ -327,28 +381,25 @@ export default function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  const handleShare = async () => {
-    const shareText = `Solunum İlk Yardım Eğitim Merkezi sınavını %${Math.round((score / activeQuestions.length) * 100)} başarı oranıyla tamamladım! 🏆`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Sınav Sonucum',
-          text: shareText,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.log('Paylaşım iptal edildi veya hata oluştu:', err);
+  const loginAdmin = async () => {
+    try {
+      const res = await fetch(`/api/scores?pin=${adminPin}`);
+      if (res.ok) {
+        const data = await res.json();
+        setScoresList(data);
+        setView('admin-dashboard');
+      } else {
+        alert("Hatalı şifre!");
       }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareText);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      } catch (err) {
-        console.error('Kopyalama hatası:', err);
-      }
+    } catch (e) {
+      alert("Hata oluştu.");
     }
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = `Merhaba, ben ${studentName}. Solunum İlk Yardım Eğitim Merkezi sınavını ${score}/${activeQuestions.length} doğru ile tamamladım!`;
+    const url = `https://wa.me/905405722007?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   };
 
   const speak = async (text: string) => {
@@ -642,7 +693,7 @@ export default function App() {
                   <ChevronRight className="ml-auto text-slate-300 group-hover:text-green-500" size={24} />
                 </button>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <button
                     onClick={() => setView('about')}
                     className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-red-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
@@ -656,6 +707,13 @@ export default function App() {
                   >
                     <Phone size={20} className="text-slate-400" />
                     <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>İletişim</span>
+                  </button>
+                  <button
+                    onClick={() => setView('admin-login')}
+                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-red-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  >
+                    <Award size={20} className="text-slate-400" />
+                    <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Eğitmen Paneli</span>
                   </button>
                 </div>
               </div>
@@ -1209,10 +1267,10 @@ export default function App() {
 
               <div className="flex flex-col gap-4">
                 <button 
-                  onClick={handleShare}
+                  onClick={handleWhatsAppShare}
                   className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:bg-slate-800 transition-all shadow-xl active:scale-95"
                 >
-                  Sonucu Paylaş <Share2 size={24} />
+                  WhatsApp ile Gönder <Share2 size={24} />
                 </button>
                 <button 
                   onClick={goBack} 
@@ -1220,6 +1278,65 @@ export default function App() {
                 >
                   Ana Menüye Dön <ArrowLeft size={24} />
                 </button>
+              </div>
+            </motion.div>
+          )}
+          {view === 'admin-login' && (
+            <motion.div 
+              key="admin-login"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="p-10 sm:p-16"
+            >
+              <div className="flex items-center gap-4 mb-10">
+                <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
+                  <ArrowLeft size={24} className="text-slate-400" />
+                </button>
+                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Eğitmen Girişi</h2>
+              </div>
+              <div className="space-y-4">
+                <p className={`text-sm font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Paneli görüntülemek için eğitmen şifresini giriniz:</p>
+                <input 
+                  type="password"
+                  value={adminPin}
+                  onChange={e => setAdminPin(e.target.value)}
+                  className={`w-full p-4 rounded-2xl border-2 font-bold focus-visible:border-red-500 outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-100'}`}
+                  placeholder="Şifre"
+                />
+                <button onClick={loginAdmin} className="w-full bg-red-600 text-white py-4 rounded-2xl font-black mt-4 hover:bg-red-700">Giriş Yap</button>
+              </div>
+            </motion.div>
+          )}
+
+          {view === 'admin-dashboard' && (
+            <motion.div 
+              key="admin-dashboard"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="p-10 sm:p-16"
+            >
+              <div className="flex items-center gap-4 mb-10">
+                <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
+                  <ArrowLeft size={24} className="text-slate-400" />
+                </button>
+                <h2 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Sonuçları</h2>
+              </div>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                {scoresList.length === 0 ? (
+                  <p className="text-slate-500 font-medium">Henüz kayıtlı bir sonuç yok.</p>
+                ) : (
+                  scoresList.slice().reverse().map((s, i) => (
+                    <div key={i} className={`p-4 rounded-2xl border-2 flex flex-col gap-1 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
+                      <div className="flex justify-between items-center">
+                        <span className={`font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.name}</span>
+                        <span className={`font-bold px-2 py-1 rounded bg-green-100 text-green-600 text-xs uppercase`}>{s.score} / {s.totalQuestions} DOĞRU</span>
+                      </div>
+                      <span className="text-xs text-slate-400">{new Date(s.date).toLocaleString('tr-TR')} • Mod: {s.mode}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </motion.div>
           )}
