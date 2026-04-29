@@ -231,21 +231,49 @@ export default function App() {
 
   const WHEEL_SEGMENTS = [
     { label: 'Kolay Soru', color: '#10b981', action: 'question' },
-    { label: 'Pas Hakkı', color: '#3b82f6', action: 'pass' },
+    { label: 'Bebek Maketi', fullText: 'Tam tıkanmış bir bebeğe maket üzerinde müdahale et', color: '#fbbf24', action: 'practical' },
     { label: 'Zor Soru', color: '#ef4444', action: 'question' },
     { label: 'Sağa Devret', color: '#8b5cf6', action: 'pass' },
-    { label: 'Normal Soru', color: '#f59e0b', action: 'question' },
+    { label: 'Tam Tıkanma', fullText: 'Yetişkinlerde tam tıkanma belirtilerini say', color: '#f97316', action: 'theoretical' },
     { label: '15 Dk Mola', color: '#6366f1', action: 'break' },
     { label: 'İki Şık Ele', color: '#ec4899', action: 'joker' },
-    { label: 'Sola Devret', color: '#14b8a6', action: 'pass' }
+    { label: 'Rentek', fullText: 'Rentek manevrasını uygula', color: '#eab308', action: 'practical' },
+    { label: 'Normal Soru', color: '#f59e0b', action: 'question' },
+    { label: 'Sola Devret', color: '#14b8a6', action: 'pass' },
+    { label: 'Pas Hakkı', color: '#3b82f6', action: 'pass' }
   ];
 
   const playCheerSound = () => {
     try {
-      const audio = new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheering.ogg');
-      audio.volume = 0.5;
-      audio.play().catch(e => console.log('Ses çalınamadı:', e));
-    } catch(e) {}
+      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      
+      const playNote = (freq: number, startTime: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+        gainNode.gain.setValueAtTime(0.3, startTime + duration - 0.05);
+        gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+
+      const now = ctx.currentTime;
+      playNote(523.25, now, 0.1);       // C5
+      playNote(659.25, now + 0.1, 0.1); // E5
+      playNote(783.99, now + 0.2, 0.1); // G5
+      playNote(1046.50, now + 0.3, 0.3); // C6
+      playNote(1318.51, now + 0.4, 0.4); // E6
+      
+    } catch(e) {
+      console.log('Ses çalınamadı:', e);
+    }
   };
 
   const spinWheel = () => {
@@ -1493,7 +1521,13 @@ export default function App() {
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-10 rounded-[3rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] border-8 border-red-500 z-50 text-center w-[90%] max-w-lg"
                   >
                     <h3 className="text-3xl font-black text-slate-400 uppercase tracking-widest mb-4">ŞANSINA ÇIKAN:</h3>
-                    <p className="text-4xl sm:text-5xl font-black text-slate-900 mb-10 uppercase leading-tight">{wheelResult}</p>
+                    <p className={`text-4xl sm:text-5xl font-black text-slate-900 uppercase leading-tight ${WHEEL_SEGMENTS.find(s => s.label === wheelResult)?.fullText ? 'mb-4' : 'mb-10'}`}>{wheelResult}</p>
+                    
+                    {WHEEL_SEGMENTS.find(s => s.label === wheelResult)?.fullText && (
+                      <p className="text-xl font-bold text-red-600 mb-8 border-2 border-red-200 bg-red-50 p-4 rounded-2xl">
+                        {WHEEL_SEGMENTS.find(s => s.label === wheelResult)?.fullText}
+                      </p>
+                    )}
                     
                     {wheelQuestion && !showWheelQuestion && (
                       <button onClick={() => setShowWheelQuestion(true)} className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl text-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 uppercase tracking-widest">
