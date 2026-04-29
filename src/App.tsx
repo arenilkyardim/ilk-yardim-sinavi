@@ -194,7 +194,7 @@ const TIME_PER_QUESTION = 30;
 const TIME_ATTACK_LIMIT = 15;
 
 export default function App() {
-  const [view, setView] = useState<'start' | 'menu' | 'group-select' | 'about' | 'contact' | 'quiz' | 'result' | 'scenarios' | 'guide' | 'scenario-play' | 'admin-login' | 'admin-dashboard'>('start');
+  const [view, setView] = useState<'start' | 'menu' | 'group-select' | 'about' | 'contact' | 'quiz' | 'result' | 'scenarios' | 'guide' | 'scenario-play' | 'admin-login' | 'admin-dashboard' | 'wheel'>('start');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [quizMode, setQuizMode] = useState<'normal' | 'time-attack' | 'perfect' | 'marathon'>('normal');
   const [activeScenario, setActiveScenario] = useState<Scenario | null>(null);
@@ -220,6 +220,83 @@ export default function App() {
   const [adminTab, setAdminTab] = useState<'scores' | 'questions'>('scores');
   const [adminQuestions, setAdminQuestions] = useState<Question[]>([]);
   const [newQuestion, setNewQuestion] = useState<Partial<Question>>({ options: ['', '', '', ''], correct: 0 });
+
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [wheelRotation, setWheelRotation] = useState(0);
+  const [wheelResult, setWheelResult] = useState<string | null>(null);
+  const [showWheelQuestion, setShowWheelQuestion] = useState(false);
+  const [wheelQuestion, setWheelQuestion] = useState<Question | null>(null);
+  const [wheelSelectedAnswer, setWheelSelectedAnswer] = useState<number | null>(null);
+  const [isWheelAnswerCorrect, setIsWheelAnswerCorrect] = useState<boolean | null>(null);
+
+  const WHEEL_SEGMENTS = [
+    { label: 'Kolay Soru', color: '#10b981', action: 'question' },
+    { label: 'Pas Hakkı', color: '#3b82f6', action: 'pass' },
+    { label: 'Zor Soru', color: '#ef4444', action: 'question' },
+    { label: 'Sağa Devret', color: '#8b5cf6', action: 'pass' },
+    { label: 'Normal Soru', color: '#f59e0b', action: 'question' },
+    { label: '15 Dk Mola', color: '#6366f1', action: 'break' },
+    { label: 'İki Şık Ele', color: '#ec4899', action: 'joker' },
+    { label: 'Sola Devret', color: '#14b8a6', action: 'pass' }
+  ];
+
+  const playCheerSound = () => {
+    try {
+      const audio = new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheering.ogg');
+      audio.volume = 0.5;
+      audio.play().catch(e => console.log('Ses çalınamadı:', e));
+    } catch(e) {}
+  };
+
+  const spinWheel = () => {
+    if (isSpinning) return;
+    setIsSpinning(true);
+    setWheelResult(null);
+    setShowWheelQuestion(false);
+    setWheelSelectedAnswer(null);
+    setIsWheelAnswerCorrect(null);
+
+    const extraSpins = 5;
+    const randomSegmentIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+    const segmentAngle = 360 / WHEEL_SEGMENTS.length;
+    // Calculate final rotation to land exactly in the middle of the selected segment.
+    // CSS rotation goes clockwise.
+    const targetAngle = (extraSpins * 360) + (360 - (randomSegmentIndex * segmentAngle) - (segmentAngle / 2));
+    
+    const newRotation = wheelRotation + targetAngle;
+    setWheelRotation(newRotation);
+
+    setTimeout(() => {
+      setIsSpinning(false);
+      const result = WHEEL_SEGMENTS[randomSegmentIndex];
+      setWheelResult(result.label);
+      if (result.action === 'question') {
+        const randomQ = loadedQuestions[Math.floor(Math.random() * loadedQuestions.length)];
+        setWheelQuestion(randomQ);
+      } else {
+        setWheelQuestion(null);
+      }
+    }, 5000);
+  };
+
+  const handleWheelAnswer = (optIndex: number) => {
+    if (wheelSelectedAnswer !== null || !wheelQuestion) return;
+    setWheelSelectedAnswer(optIndex);
+    const correct = optIndex === wheelQuestion.correct;
+    setIsWheelAnswerCorrect(correct);
+    if (correct) {
+      playSound('correct');
+      playCheerSound();
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.5 },
+        colors: ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#ffffff']
+      });
+    } else {
+      playSound('wrong');
+    }
+  };
 
   useEffect(() => {
     fetch('/api/questions')
@@ -742,6 +819,20 @@ export default function App() {
                     <p className="text-slate-500 text-sm font-medium">Acil durum el kitabı</p>
                   </div>
                   <ChevronRight className="ml-auto text-slate-300 group-hover:text-green-500" size={24} />
+                </button>
+
+                <button
+                  onClick={() => setView('wheel')}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group shadow-md shadow-purple-200 ${theme === 'dark' ? 'bg-gradient-to-r from-indigo-900 to-purple-900 border-indigo-700' : 'bg-gradient-to-r from-indigo-50 to-purple-50 border-purple-100'}`}
+                >
+                  <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors shadow-inner">
+                    <Loader2 size={28} className="group-hover:animate-spin" />
+                  </div>
+                  <div className="text-left">
+                    <p className={`font-black text-xl ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>Şans Çarkı</p>
+                    <p className="text-purple-500 text-sm font-bold">Sınıf içi interaktif yarışma</p>
+                  </div>
+                  <ChevronRight className="ml-auto text-purple-300 group-hover:text-purple-600" size={24} />
                 </button>
 
                 <div className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -1332,6 +1423,167 @@ export default function App() {
               </div>
             </motion.div>
           )}
+          {view === 'wheel' && (
+            <motion.div 
+              key="wheel"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full flex flex-col items-center relative py-6"
+            >
+              <div className="w-full flex justify-between items-center mb-10 px-4">
+                 <button onClick={() => setView('menu')} className={`p-3 rounded-2xl transition-colors font-bold flex items-center gap-2 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-red-50 hover:bg-red-100 text-red-600'}`}>
+                   <ArrowLeft size={20} /> Ana Menü
+                 </button>
+                 <h2 className={`text-2xl font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sıradakİ Kursİyer!</h2>
+                 <div className="w-10"></div>
+              </div>
+
+              <div className="relative w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] mt-4">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-10 h-10 bg-slate-900 z-20 shadow-lg" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }}></div>
+                
+                <motion.div 
+                  className="w-full h-full rounded-full border-8 border-slate-900 shadow-2xl relative overflow-hidden"
+                  animate={{ rotate: wheelRotation }}
+                  transition={{ duration: 5, ease: [0.15, 0.85, 0.35, 1] }}
+                  style={{
+                    background: `conic-gradient(${WHEEL_SEGMENTS.map((s, i) => `${s.color} ${i * (360 / WHEEL_SEGMENTS.length)}deg ${(i + 1) * (360 / WHEEL_SEGMENTS.length)}deg`).join(', ')})`
+                  }}
+                >
+                  {WHEEL_SEGMENTS.map((seg, i) => {
+                    const angle = 360 / WHEEL_SEGMENTS.length;
+                    const rotate = (i * angle) + (angle / 2);
+                    return (
+                      <div key={i} className="absolute w-full h-full flex justify-center pt-6 sm:pt-10" style={{ transform: `rotate(${rotate}deg)` }}>
+                        <span className="font-black text-white text-[12px] sm:text-[15px] uppercase tracking-wider" style={{ textShadow: '0px 2px 5px rgba(0,0,0,0.8)' }}>
+                          {seg.label}
+                        </span>
+                      </div>
+                    )
+                  })}
+                  
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full border-4 border-slate-900 shadow-inner z-10 flex items-center justify-center">
+                    <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                  </div>
+                </motion.div>
+              </div>
+
+              <button 
+                onClick={spinWheel} 
+                disabled={isSpinning}
+                className={`mt-16 px-14 py-6 rounded-full font-black text-2xl uppercase tracking-widest shadow-xl transition-all ${isSpinning ? 'bg-slate-300 text-slate-500 cursor-not-allowed scale-95' : 'bg-red-600 text-white hover:bg-red-700 hover:scale-105 active:scale-95 shadow-red-200'}`}
+              >
+                {isSpinning ? 'Çevriliyor...' : 'Çarkı Çevir!'}
+              </button>
+
+              <AnimatePresence>
+                {wheelResult && !isSpinning && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-10 rounded-[3rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] border-8 border-red-500 z-50 text-center w-[90%] max-w-lg"
+                  >
+                    <h3 className="text-3xl font-black text-slate-400 uppercase tracking-widest mb-4">ŞANSINA ÇIKAN:</h3>
+                    <p className="text-4xl sm:text-5xl font-black text-slate-900 mb-10 uppercase leading-tight">{wheelResult}</p>
+                    
+                    {wheelQuestion && !showWheelQuestion && (
+                      <button onClick={() => setShowWheelQuestion(true)} className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl text-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 uppercase tracking-widest">
+                        Soruyu Göster
+                      </button>
+                    )}
+                    
+                    {!wheelQuestion && (
+                      <button onClick={() => setWheelResult(null)} className="w-full bg-slate-100 text-slate-800 font-black py-5 rounded-2xl text-xl hover:bg-slate-200 transition-colors uppercase tracking-widest">
+                        Kapat
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {showWheelQuestion && wheelQuestion && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="fixed inset-0 bg-slate-900/95 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"
+                  >
+                    <div className="bg-white rounded-[2.5rem] p-6 sm:p-12 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                      <div className="flex justify-between items-center mb-8">
+                        <span className="font-black text-red-600 bg-red-100 px-4 py-2 rounded-xl text-sm uppercase tracking-widest border-2 border-red-200">{wheelResult}</span>
+                        <button onClick={() => { setShowWheelQuestion(false); setWheelResult(null); }} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"><XCircle size={28} /></button>
+                      </div>
+                      
+                      <h3 className="text-2xl sm:text-3xl font-black text-slate-800 mb-10 leading-snug">
+                        {wheelQuestion.question}
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        {wheelQuestion.options.map((opt, i) => {
+                          const isSelected = wheelSelectedAnswer === i;
+                          const isCorrect = i === wheelQuestion.correct;
+                          
+                          // Joker: İki Şıkkı Ele mantığı
+                          let isEliminated = false;
+                          if (wheelResult === 'İki Şık Ele' && wheelSelectedAnswer === null) {
+                             const wrongOptions = wheelQuestion.options.map((_, idx) => idx).filter(idx => idx !== wheelQuestion.correct);
+                             // Eleme işlemi görsel amaçlı, rastgele 2 tanesini seçeceğiz.
+                             // Sabit kalması için basit matematik.
+                             if (wrongOptions.indexOf(i) === 0 || wrongOptions.indexOf(i) === 1) {
+                               isEliminated = true;
+                             }
+                          }
+                          
+                          if (isEliminated) return null; // Şıkkı tamamen gizle
+                          
+                          let btnClass = "w-full p-5 sm:p-6 rounded-2xl border-4 text-left font-bold text-lg sm:text-xl transition-all ";
+                          
+                          if (wheelSelectedAnswer === null) {
+                            btnClass += "border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50 text-slate-700 hover:scale-[1.02] active:scale-[0.98]";
+                          } else {
+                            if (isCorrect) {
+                              btnClass += "border-green-500 bg-green-100 text-green-800 shadow-lg shadow-green-100";
+                            } else if (isSelected) {
+                              btnClass += "border-red-500 bg-red-100 text-red-800 shadow-lg shadow-red-100";
+                            } else {
+                              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+                            }
+                          }
+
+                          return (
+                            <button 
+                              key={i} 
+                              onClick={() => handleWheelAnswer(i)}
+                              disabled={wheelSelectedAnswer !== null}
+                              className={btnClass}
+                            >
+                              <div className="flex gap-4 items-center">
+                                <span className={`w-10 h-10 flex items-center justify-center rounded-xl font-black ${wheelSelectedAnswer === null ? 'bg-slate-100 text-slate-500' : (isCorrect ? 'bg-green-200 text-green-900' : (isSelected ? 'bg-red-200 text-red-900' : 'bg-slate-100 text-slate-400'))}`}>
+                                  {String.fromCharCode(65+i)}
+                                </span>
+                                <span>{opt}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {wheelSelectedAnswer !== null && (
+                        <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className={`mt-10 p-8 rounded-[2rem] border-4 ${isWheelAnswerCorrect ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+                          <div className="flex items-center gap-4 mb-4">
+                            {isWheelAnswerCorrect ? <CheckCircle2 size={32} className="text-green-500"/> : <XCircle size={32} className="text-red-500"/>}
+                            <p className="font-black text-2xl uppercase tracking-widest">{isWheelAnswerCorrect ? 'HARİKA! DOĞRU CEVAP!' : 'MAALESEF YANLIŞ CEVAP!'}</p>
+                          </div>
+                          <p className="font-bold text-lg leading-relaxed opacity-90">{wheelQuestion.explanation}</p>
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
           {view === 'admin-login' && (
             <motion.div 
               key="admin-login"
