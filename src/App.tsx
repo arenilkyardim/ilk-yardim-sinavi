@@ -221,6 +221,10 @@ export default function App() {
   const [adminQuestions, setAdminQuestions] = useState<Question[]>([]);
   const [newQuestion, setNewQuestion] = useState<Partial<Question>>({ options: ['', '', '', ''], correct: 0 });
 
+  const wheelRef = useRef<HTMLDivElement>(null);
+  const audioCtxRef = useRef<any>(null);
+  const lastTickAngle = useRef<number>(0);
+
   const [isSpinning, setIsSpinning] = useState(false);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [wheelResult, setWheelResult] = useState<string | null>(null);
@@ -236,11 +240,15 @@ export default function App() {
     { label: 'Sağa Devret', color: '#8b5cf6', action: 'pass' },
     { label: 'Tam Tıkanma', fullText: 'Yetişkinlerde tam tıkanma belirtilerini say', color: '#f97316', action: 'theoretical' },
     { label: '15 Dk Mola', color: '#6366f1', action: 'break' },
+    { label: 'AVPU Kontrolü', fullText: 'Kişide inme felç kontrolü nasıl yapılır AVPU maddelerini sırala', color: '#8b5cf6', action: 'theoretical' },
     { label: 'İki Şık Ele', color: '#ec4899', action: 'joker' },
     { label: 'Rentek', fullText: 'Rentek manevrasını uygula', color: '#eab308', action: 'practical' },
     { label: 'Normal Soru', color: '#f59e0b', action: 'question' },
+    { label: 'Kanama', fullText: 'Kanamalarda ilk yardım nasıl yapılmalıdır ve hasta yaralı hangi pozisyona alınmalıdır?', color: '#ef4444', action: 'theoretical' },
     { label: 'Sola Devret', color: '#14b8a6', action: 'pass' },
-    { label: 'Pas Hakkı', color: '#3b82f6', action: 'pass' }
+    { label: '100 Puan Sözü', fullText: 'İlk yardım sınavından 100 puan alacağına söz ver', color: '#10b981', action: 'fun' },
+    { label: 'Pas Hakkı', color: '#3b82f6', action: 'pass' },
+    { label: 'Google 5 Yıldız', fullText: 'Kuruma 5 yıldız puanı ver (Google Yorumlar)', color: '#ec4899', action: 'fun' }
   ];
 
   const playCheerSound = () => {
@@ -275,6 +283,56 @@ export default function App() {
       console.log('Ses çalınamadı:', e);
     }
   };
+
+  const playTick = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
+        if (!AudioContextClass) return;
+        audioCtxRef.current = new AudioContextClass();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.05);
+    } catch(e) {}
+  };
+
+  useEffect(() => {
+    let rafId: number;
+    if (isSpinning && wheelRef.current) {
+      const segmentAngle = 360 / WHEEL_SEGMENTS.length;
+      const checkRotation = () => {
+        if (wheelRef.current) {
+          const transform = wheelRef.current.style.transform;
+          const match = transform.match(/rotate\(([\d.]+)deg\)/);
+          if (match) {
+            const currentAngle = parseFloat(match[1]);
+            const segmentIndex = Math.floor((currentAngle + (segmentAngle/2)) / segmentAngle);
+            if (segmentIndex !== lastTickAngle.current) {
+              lastTickAngle.current = segmentIndex;
+              playTick();
+            }
+          }
+        }
+        rafId = requestAnimationFrame(checkRotation);
+      };
+      rafId = requestAnimationFrame(checkRotation);
+    }
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [isSpinning, WHEEL_SEGMENTS.length]);
 
   const spinWheel = () => {
     if (isSpinning) return;
@@ -1476,13 +1534,28 @@ export default function App() {
                  <div className="w-10"></div>
               </div>
 
-              <div className="relative w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] mt-4">
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-10 h-10 bg-slate-900 z-20 shadow-lg" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }}></div>
+              <div className="relative w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] mt-4 mb-8 bg-slate-900 rounded-full p-2 sm:p-4 md:p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                 {/* LED Işıkları */}
+                 <div className="absolute inset-0 rounded-full border-[6px] border-yellow-500 shadow-[0_0_15px_#eab308]"></div>
+                 {Array.from({length: 24}).map((_, i) => (
+                    <div 
+                      key={`led-${i}`} 
+                      className="absolute inset-0 flex justify-center z-10"
+                      style={{ transform: `rotate(${i * 15}deg)` }}
+                    >
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-200 mt-1 sm:mt-1 md:mt-2 shadow-[0_0_10px_#fef08a,0_0_20px_#fef08a] animate-pulse" style={{ animationDelay: `${i % 2 === 0 ? 0 : 0.5}s` }}></div>
+                    </div>
+                 ))}
+
+                <div className="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-14 sm:w-16 sm:h-20 z-40 drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]">
+                   <div className="w-full h-full bg-gradient-to-b from-yellow-300 to-yellow-600" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }}></div>
+                </div>
                 
                 <motion.div 
-                  className="w-full h-full rounded-full border-8 border-slate-900 shadow-2xl relative overflow-hidden"
+                  ref={wheelRef}
+                  className="w-full h-full rounded-full shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] relative overflow-hidden"
                   animate={{ rotate: wheelRotation }}
-                  transition={{ duration: 5, ease: [0.15, 0.85, 0.35, 1] }}
+                  transition={{ duration: 7, ease: [0.15, 0.85, 0.25, 1] }}
                   style={{
                     background: `conic-gradient(${WHEEL_SEGMENTS.map((s, i) => `${s.color} ${i * (360 / WHEEL_SEGMENTS.length)}deg ${(i + 1) * (360 / WHEEL_SEGMENTS.length)}deg`).join(', ')})`
                   }}
@@ -1491,18 +1564,29 @@ export default function App() {
                     const angle = 360 / WHEEL_SEGMENTS.length;
                     const rotate = (i * angle) + (angle / 2);
                     return (
-                      <div key={i} className="absolute w-full h-full flex justify-center pt-6 sm:pt-10" style={{ transform: `rotate(${rotate}deg)` }}>
-                        <span className="font-black text-white text-[12px] sm:text-[15px] uppercase tracking-wider" style={{ textShadow: '0px 2px 5px rgba(0,0,0,0.8)' }}>
-                          {seg.label}
-                        </span>
+                      <div key={i} className="absolute top-0 left-0 w-full h-full" style={{ transform: `rotate(${rotate}deg)` }}>
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 sm:w-16 h-1/2 flex items-start justify-center pt-2 sm:pt-4 md:pt-8">
+                          <span 
+                            className="font-black text-white text-[10px] sm:text-[14px] md:text-[16px] leading-none uppercase tracking-widest block whitespace-nowrap" 
+                            style={{ 
+                              writingMode: 'vertical-rl',
+                              transform: 'rotate(180deg)',
+                              textShadow: '0px 2px 5px rgba(0,0,0,0.8)',
+                            }}
+                          >
+                            {seg.label}
+                          </span>
+                        </div>
                       </div>
                     )
                   })}
-                  
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full border-4 border-slate-900 shadow-inner z-10 flex items-center justify-center">
-                    <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-                  </div>
                 </motion.div>
+                
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-slate-100 to-slate-400 rounded-full border-4 sm:border-8 border-slate-900 shadow-[inset_0_-5px_10px_rgba(0,0,0,0.3),0_10px_20px_rgba(0,0,0,0.5)] z-30 flex items-center justify-center">
+                  <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-inner flex items-center justify-center">
+                     <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
+                  </div>
+                </div>
               </div>
 
               <button 
