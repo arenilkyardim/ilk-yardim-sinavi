@@ -259,11 +259,20 @@ export default function App() {
     const extraSpins = 5;
     const randomSegmentIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
     const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-    // Calculate final rotation to land exactly in the middle of the selected segment.
-    // CSS rotation goes clockwise.
-    const targetAngle = (extraSpins * 360) + (360 - (randomSegmentIndex * segmentAngle) - (segmentAngle / 2));
     
-    const newRotation = wheelRotation + targetAngle;
+    // Çarkın en tepesindeki ibreye denk gelmesi için gereken mutlak (absolute) açı
+    const requiredAbsoluteAngle = 360 - (randomSegmentIndex * segmentAngle) - (segmentAngle / 2);
+    
+    // Şu anki dönüşün 360'a bölümünden kalanı (mevcut fiziksel açı)
+    const currentPhysicalAngle = wheelRotation % 360;
+    
+    // Hedefe ulaşmak için gereken fark (ileri doğru dönmesini sağlamak için)
+    let diff = requiredAbsoluteAngle - currentPhysicalAngle;
+    if (diff <= 0) diff += 360;
+
+    // Yeni toplam dönüş miktarı
+    const newRotation = wheelRotation + (extraSpins * 360) + diff;
+    
     setWheelRotation(newRotation);
 
     setTimeout(() => {
