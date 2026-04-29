@@ -241,7 +241,7 @@ export default function App() {
     { label: 'Tam Tıkanma', fullText: 'Yetişkinlerde tam tıkanma belirtilerini say', color: '#f97316', action: 'theoretical' },
     { label: '15 Dk Mola', color: '#6366f1', action: 'break' },
     { label: 'AVPU Kontrolü', fullText: 'Kişide inme felç kontrolü nasıl yapılır AVPU maddelerini sırala', color: '#8b5cf6', action: 'theoretical' },
-    { label: 'İki Şık Ele', color: '#ec4899', action: 'joker' },
+    { label: 'İpucu Al', fullText: 'Eğitmenden bu soru için bir ipucu iste', color: '#ec4899', action: 'joker' },
     { label: 'Rentek', fullText: 'Rentek manevrasını uygula', color: '#eab308', action: 'practical' },
     { label: 'Normal Soru', color: '#f59e0b', action: 'question' },
     { label: 'Kanama', fullText: 'Kanamalarda ilk yardım nasıl yapılmalıdır ve hasta yaralı hangi pozisyona alınmalıdır?', color: '#ef4444', action: 'theoretical' },
@@ -296,10 +296,10 @@ export default function App() {
       
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(150, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.05);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -371,7 +371,7 @@ export default function App() {
       } else {
         setWheelQuestion(null);
       }
-    }, 5000);
+    }, 8500);
   };
 
   const handleWheelAnswer = (optIndex: number) => {
@@ -787,7 +787,7 @@ export default function App() {
         </motion.div>
       </header>
 
-      <main className={`w-full max-w-lg rounded-[2rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] overflow-hidden border relative transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-red-900/10' : 'bg-white border-slate-100'}`} role="main">
+      <main className={`w-full ${view === 'wheel' ? 'max-w-3xl' : 'max-w-lg'} rounded-[2rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] overflow-hidden border relative transition-all duration-500 ${theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-red-900/10' : 'bg-white border-slate-100'}`} role="main">
         
         <AnimatePresence mode="wait">
           {view === 'start' && (
@@ -1555,7 +1555,7 @@ export default function App() {
                   ref={wheelRef}
                   className="w-full h-full rounded-full shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] relative overflow-hidden"
                   animate={{ rotate: wheelRotation }}
-                  transition={{ duration: 7, ease: [0.15, 0.85, 0.25, 1] }}
+                  transition={{ duration: 8.5, ease: [0.15, 0.85, 0.25, 1] }}
                   style={{
                     background: `conic-gradient(${WHEEL_SEGMENTS.map((s, i) => `${s.color} ${i * (360 / WHEEL_SEGMENTS.length)}deg ${(i + 1) * (360 / WHEEL_SEGMENTS.length)}deg`).join(', ')})`
                   }}
