@@ -400,7 +400,7 @@ export default function App() {
         if (data && data.length > 0) {
           setLoadedQuestions(data);
         } else {
-          fetch('/api/questions?pin=2007', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(QUESTIONS) });
+          fetch('/api/questions?pin=3445', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(QUESTIONS) });
         }
       }).catch(e => console.log('Questions fetch error'));
   }, []);
@@ -766,13 +766,22 @@ export default function App() {
               <Instagram size={20} />
             </a>
             <a 
-              href="https://mefailkyardim.com/" 
+              href="https://www.facebook.com/profile.php?id=61580792916200&locale=tr_TR" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-blue-600 hover:scale-110 transition-all active:scale-95"
               aria-label="Facebook Sayfamız"
             >
               <Facebook size={20} />
+            </a>
+            <a 
+              href="https://mefailkyardim.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-emerald-600 hover:scale-110 transition-all active:scale-95"
+              aria-label="Web Sitemiz"
+            >
+              <Globe size={20} />
             </a>
             <a 
               href="https://www.youtube.com/@MEFAİlkYardım" 
@@ -843,11 +852,17 @@ export default function App() {
                     </div>
                     <span className="text-[10px] font-bold">Instagram</span>
                   </a>
-                  <a href="https://mefailkyardim.com/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors flex flex-col items-center gap-2 group">
+                  <a href="https://www.facebook.com/profile.php?id=61580792916200&locale=tr_TR" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors flex flex-col items-center gap-2 group">
                     <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 transition-colors">
                       <Facebook size={20} />
                     </div>
                     <span className="text-[10px] font-bold">Facebook</span>
+                  </a>
+                  <a href="https://mefailkyardim.com/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-600 transition-colors flex flex-col items-center gap-2 group">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                      <Globe size={20} />
+                    </div>
+                    <span className="text-[10px] font-bold">Web Sitesi</span>
                   </a>
                   <a href="https://www.youtube.com/@MEFAİlkYardım" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-sky-800 transition-colors flex flex-col items-center gap-2 group">
                     <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-sky-50 transition-colors">
@@ -1243,8 +1258,7 @@ export default function App() {
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Telefon Numaralarımız</p>
-                      <p className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>0212 572 2007</p>
-                      <p className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>0540 572 2007</p>
+                      <p className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>0533 150 34 45</p>
                     </div>
                   </div>
 
@@ -1255,8 +1269,8 @@ export default function App() {
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Eğitim Merkezimiz</p>
                       <p className={`font-bold text-sm leading-snug ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
-                        İsmetpaşa Mh. 54. Sk. No: 2/5<br />
-                        Sultangazi / İSTANBUL
+                        Yakuplu, Birlik Cad. Beysan San. Sit. No:32<br />
+                        İç Kapı No: 64, Beylikdüzü / İSTANBUL
                       </p>
                     </div>
                   </div>
@@ -1268,8 +1282,11 @@ export default function App() {
                     <a href="https://www.instagram.com/mefailkyardim/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-sky-500' : 'bg-slate-50 text-slate-400 hover:bg-sky-50 hover:text-sky-700'}`}>
                       <Instagram size={24} />
                     </a>
-                    <a href="https://mefailkyardim.com/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-blue-500' : 'bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600'}`}>
+                    <a href="https://www.facebook.com/profile.php?id=61580792916200&locale=tr_TR" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-blue-500' : 'bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600'}`}>
                       <Facebook size={24} />
+                    </a>
+                    <a href="https://mefailkyardim.com/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-emerald-500' : 'bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600'}`}>
+                      <Globe size={24} />
                     </a>
                     <a href="https://www.youtube.com/@MEFAİlkYardım" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-sky-500' : 'bg-slate-50 text-slate-400 hover:bg-sky-50 hover:text-sky-700'}`}>
                       <Youtube size={24} />

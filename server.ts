@@ -47,7 +47,7 @@ async function startServer() {
 
   app.get("/api/scores", async (req, res) => {
     const pin = req.query.pin;
-    if (pin !== "2007") {
+    if (pin !== "3445") {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
@@ -78,7 +78,7 @@ async function startServer() {
 
   app.post("/api/questions", async (req, res) => {
     const pin = req.query.pin;
-    if (pin !== "2007") {
+    if (pin !== "3445") {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
