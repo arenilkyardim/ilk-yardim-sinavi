@@ -194,7 +194,7 @@ const TIME_PER_QUESTION = 30;
 const TIME_ATTACK_LIMIT = 15;
 
 export default function App() {
-  const [view, setView] = useState<'start' | 'menu' | 'group-select' | 'about' | 'contact' | 'quiz' | 'result' | 'scenarios' | 'guide' | 'scenario-play' | 'admin-login' | 'admin-dashboard' | 'wheel'>('start');
+  const [view, setView] = useState<'start' | 'menu' | 'group-select' | 'about' | 'contact' | 'quiz' | 'result' | 'scenarios' | 'guide' | 'scenario-play' | 'admin-login' | 'admin-dashboard'>('start');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [quizMode, setQuizMode] = useState<'normal' | 'time-attack' | 'perfect' | 'marathon'>('normal');
   const [activeScenario, setActiveScenario] = useState<Scenario | null>(null);
@@ -216,194 +216,6 @@ export default function App() {
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [adminPin, setAdminPin] = useState('');
   const [scoresList, setScoresList] = useState<any[]>([]);
-  const [loadedQuestions, setLoadedQuestions] = useState<Question[]>(QUESTIONS);
-  const [adminTab, setAdminTab] = useState<'scores' | 'questions'>('scores');
-  const [adminQuestions, setAdminQuestions] = useState<Question[]>([]);
-  const [newQuestion, setNewQuestion] = useState<Partial<Question>>({ options: ['', '', '', ''], correct: 0 });
-
-  const wheelRef = useRef<HTMLDivElement>(null);
-  const audioCtxRef = useRef<any>(null);
-  const lastTickAngle = useRef<number>(0);
-
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [wheelRotation, setWheelRotation] = useState(0);
-  const [wheelResult, setWheelResult] = useState<string | null>(null);
-  const [showWheelQuestion, setShowWheelQuestion] = useState(false);
-  const [wheelQuestion, setWheelQuestion] = useState<Question | null>(null);
-  const [wheelSelectedAnswer, setWheelSelectedAnswer] = useState<number | null>(null);
-  const [isWheelAnswerCorrect, setIsWheelAnswerCorrect] = useState<boolean | null>(null);
-
-  const WHEEL_SEGMENTS = [
-    { label: 'Kolay Soru', color: '#10b981', action: 'question' },
-    { label: 'Bebek Maketi', fullText: 'Tam tıkanmış bir bebeğe maket üzerinde müdahale et', color: '#fbbf24', action: 'practical' },
-    { label: 'Zor Soru', color: '#ef4444', action: 'question' },
-    { label: 'Sağa Devret', color: '#8b5cf6', action: 'pass' },
-    { label: 'Tam Tıkanma', fullText: 'Yetişkinlerde tam tıkanma belirtilerini say', color: '#f97316', action: 'theoretical' },
-    { label: '15 Dk Mola', color: '#6366f1', action: 'break' },
-    { label: 'AVPU Kontrolü', fullText: 'Kişide inme felç kontrolü nasıl yapılır AVPU maddelerini sırala', color: '#8b5cf6', action: 'theoretical' },
-    { label: 'İpucu Al', fullText: 'Eğitmenden bu soru için bir ipucu iste', color: '#ec4899', action: 'joker' },
-    { label: 'Rentek', fullText: 'Rentek manevrasını uygula', color: '#eab308', action: 'practical' },
-    { label: 'Normal Soru', color: '#f59e0b', action: 'question' },
-    { label: 'Kanama', fullText: 'Kanamalarda ilk yardım nasıl yapılmalıdır ve hasta yaralı hangi pozisyona alınmalıdır?', color: '#ef4444', action: 'theoretical' },
-    { label: 'Sola Devret', color: '#14b8a6', action: 'pass' },
-    { label: '100 Puan Sözü', fullText: 'İlk yardım sınavından 100 puan alacağına söz ver', color: '#10b981', action: 'fun' },
-    { label: 'Pas Hakkı', color: '#3b82f6', action: 'pass' },
-    { label: 'Google 5 Yıldız', fullText: 'Kuruma 5 yıldız puanı ver (Google Yorumlar)', color: '#ec4899', action: 'fun' }
-  ];
-
-  const playCheerSound = () => {
-    try {
-      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
-      
-      const playNote = (freq: number, startTime: number, duration: number) => {
-        const osc = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        osc.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
-        gainNode.gain.setValueAtTime(0.3, startTime + duration - 0.05);
-        gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-      };
-
-      const now = ctx.currentTime;
-      playNote(523.25, now, 0.1);       // C5
-      playNote(659.25, now + 0.1, 0.1); // E5
-      playNote(783.99, now + 0.2, 0.1); // G5
-      playNote(1046.50, now + 0.3, 0.3); // C6
-      playNote(1318.51, now + 0.4, 0.4); // E6
-      
-    } catch(e) {
-      console.log('Ses çalınamadı:', e);
-    }
-  };
-
-  const playTick = () => {
-    try {
-      if (!audioCtxRef.current) {
-        const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
-        if (!AudioContextClass) return;
-        audioCtxRef.current = new AudioContextClass();
-      }
-      const ctx = audioCtxRef.current;
-      if (ctx.state === 'suspended') ctx.resume();
-      
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.05);
-    } catch(e) {}
-  };
-
-  useEffect(() => {
-    let rafId: number;
-    if (isSpinning && wheelRef.current) {
-      const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-      const checkRotation = () => {
-        if (wheelRef.current) {
-          const transform = wheelRef.current.style.transform;
-          const match = transform.match(/rotate\(([\d.]+)deg\)/);
-          if (match) {
-            const currentAngle = parseFloat(match[1]);
-            const segmentIndex = Math.floor((currentAngle + (segmentAngle/2)) / segmentAngle);
-            if (segmentIndex !== lastTickAngle.current) {
-              lastTickAngle.current = segmentIndex;
-              playTick();
-            }
-          }
-        }
-        rafId = requestAnimationFrame(checkRotation);
-      };
-      rafId = requestAnimationFrame(checkRotation);
-    }
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [isSpinning, WHEEL_SEGMENTS.length]);
-
-  const spinWheel = () => {
-    if (isSpinning) return;
-    setIsSpinning(true);
-    setWheelResult(null);
-    setShowWheelQuestion(false);
-    setWheelSelectedAnswer(null);
-    setIsWheelAnswerCorrect(null);
-
-    const extraSpins = 5;
-    const randomSegmentIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
-    const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-    
-    // Çarkın en tepesindeki ibreye denk gelmesi için gereken mutlak (absolute) açı
-    const requiredAbsoluteAngle = 360 - (randomSegmentIndex * segmentAngle) - (segmentAngle / 2);
-    
-    // Şu anki dönüşün 360'a bölümünden kalanı (mevcut fiziksel açı)
-    const currentPhysicalAngle = wheelRotation % 360;
-    
-    // Hedefe ulaşmak için gereken fark (ileri doğru dönmesini sağlamak için)
-    let diff = requiredAbsoluteAngle - currentPhysicalAngle;
-    if (diff <= 0) diff += 360;
-
-    // Yeni toplam dönüş miktarı
-    const newRotation = wheelRotation + (extraSpins * 360) + diff;
-    
-    setWheelRotation(newRotation);
-
-    setTimeout(() => {
-      setIsSpinning(false);
-      const result = WHEEL_SEGMENTS[randomSegmentIndex];
-      setWheelResult(result.label);
-      if (result.action === 'question') {
-        const randomQ = loadedQuestions[Math.floor(Math.random() * loadedQuestions.length)];
-        setWheelQuestion(randomQ);
-      } else {
-        setWheelQuestion(null);
-      }
-    }, 8500);
-  };
-
-  const handleWheelAnswer = (optIndex: number) => {
-    if (wheelSelectedAnswer !== null || !wheelQuestion) return;
-    setWheelSelectedAnswer(optIndex);
-    const correct = optIndex === wheelQuestion.correct;
-    setIsWheelAnswerCorrect(correct);
-    if (correct) {
-      playSound('correct');
-      playCheerSound();
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.5 },
-        colors: ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#ffffff']
-      });
-    } else {
-      playSound('wrong');
-    }
-  };
-
-  useEffect(() => {
-    fetch('/api/questions')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          setLoadedQuestions(data);
-        } else {
-          fetch('/api/questions?pin=2007', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(QUESTIONS) });
-        }
-      }).catch(e => console.log('Questions fetch error'));
-  }, []);
 
   const playSound = (type: 'correct' | 'wrong') => {
     try {
@@ -448,10 +260,10 @@ export default function App() {
     let selectedQuestions: Question[] = [];
     
     if (group === 'marathon') {
-      selectedQuestions = loadedQuestions;
+      selectedQuestions = QUESTIONS;
     } else {
       const startIndex = (group - 1) * 25;
-      selectedQuestions = loadedQuestions.slice(startIndex, startIndex + 25);
+      selectedQuestions = QUESTIONS.slice(startIndex, startIndex + 25);
     }
 
     setActiveQuestions(shuffleQuestions(selectedQuestions));
@@ -516,7 +328,6 @@ export default function App() {
         body: JSON.stringify({
           name: studentName,
           score: score,
-          wrongAnswers: activeQuestions.filter(q => wrongIds.includes(q.id)).map(q => q.question),
           totalQuestions: activeQuestions.length,
           mode: quizMode
         })
@@ -576,13 +387,6 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setScoresList(data);
-        const qRes = await fetch('/api/questions');
-        if (qRes.ok) {
-           const qData = await qRes.json();
-           setAdminQuestions(qData && qData.length > 0 ? qData : QUESTIONS);
-        } else {
-           setAdminQuestions(QUESTIONS);
-        }
         setView('admin-dashboard');
       } else {
         alert("Hatalı şifre!");
@@ -592,36 +396,9 @@ export default function App() {
     }
   };
 
-  
-  const handleSaveQuestion = async () => {
-    if(!newQuestion.question || newQuestion.options?.some(o=>!o)) return alert("Lütfen tüm alanları doldurun");
-    const updated = [...adminQuestions];
-    if(newQuestion.id) {
-       const idx = updated.findIndex(q=>q.id === newQuestion.id);
-       updated[idx] = newQuestion as Question;
-    } else {
-       updated.push({ ...newQuestion, id: Date.now() } as Question);
-    }
-    setAdminQuestions(updated);
-    setLoadedQuestions(updated);
-    try {
-      await fetch(`/api/questions?pin=${adminPin}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(updated)});
-      setNewQuestion({ options: ['', '', '', ''], correct: 0, question: '', explanation: '' });
-      alert("Soru başarıyla kaydedildi!");
-    } catch(e) { alert("Kaydetme hatası"); }
-  };
-  
-  const handleDeleteQuestion = async (id: number) => {
-    if(!confirm("Soryu silmek istediğinize emin misiniz?")) return;
-    const updated = adminQuestions.filter(q=>q.id !== id);
-    setAdminQuestions(updated);
-    setLoadedQuestions(updated);
-    await fetch(`/api/questions?pin=${adminPin}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(updated)});
-  };
-
   const handleWhatsAppShare = () => {
-    const text = `Merhaba, ben ${studentName}. Mefa Akademi İlk Yardım Eğitim Merkezi sınavını ${score}/${activeQuestions.length} doğru ile tamamladım!`;
-    const url = `https://wa.me/905331503445?text=${encodeURIComponent(text)}`;
+    const text = `Merhaba, ben ${studentName}. Solunum İlk Yardım Eğitim Merkezi sınavını ${score}/${activeQuestions.length} doğru ile tamamladım!`;
+    const url = `https://wa.me/905405722007?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 
@@ -741,13 +518,13 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex flex-col items-center gap-4"
         >
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="bg-white p-2 rounded-2xl shadow-xl shadow-sky-200 ring-4 ring-sky-50" aria-hidden="true">
-              <img src="/logo.png" alt="Mefa Akademi Logo" className="w-16 h-16 object-contain" />
+          <div className="flex items-center gap-4">
+                <div className="bg-red-600 p-3 rounded-2xl shadow-xl shadow-red-200 ring-4 ring-red-50" aria-hidden="true">
+              <HeartPulse className="text-white" size={32} />
             </div>
-            <div className="text-center sm:text-left">
+            <div className="text-left">
               <h1 id="main-title" className={`text-3xl sm:text-3xl sm:text-4xl font-black tracking-tighter leading-none uppercase ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                Mefa Akademi <span className="text-sky-700">İlk Yardım</span>
+                Solunum <span className="text-red-600">İlk Yardım</span>
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <GraduationCap size={16} className="text-slate-500" aria-hidden="true" />
@@ -757,16 +534,16 @@ export default function App() {
           </div>
           <div className="flex items-center gap-3">
             <a 
-              href="https://www.instagram.com/mefailkyardim/" 
+              href="https://www.instagram.com/solunumiem/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-sky-700 hover:scale-110 transition-all active:scale-95"
+              className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-red-600 hover:scale-110 transition-all active:scale-95"
               aria-label="Instagram Profilimiz"
             >
               <Instagram size={20} />
             </a>
             <a 
-              href="https://mefailkyardim.com/" 
+              href="https://www.facebook.com/Solunumiem/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-blue-600 hover:scale-110 transition-all active:scale-95"
@@ -775,10 +552,10 @@ export default function App() {
               <Facebook size={20} />
             </a>
             <a 
-              href="https://www.youtube.com/@MEFAİlkYardım" 
+              href="https://www.youtube.com/@solunumilkyardm6965" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-sky-800 hover:scale-110 transition-all active:scale-95"
+              className="bg-white p-3 rounded-2xl shadow-lg border border-slate-50 text-red-700 hover:scale-110 transition-all active:scale-95"
               aria-label="YouTube Kanalımız"
             >
               <Youtube size={20} />
@@ -787,7 +564,7 @@ export default function App() {
         </motion.div>
       </header>
 
-      <main className={`w-full ${view === 'wheel' ? 'max-w-3xl' : 'max-w-lg'} rounded-[2rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] overflow-hidden border relative transition-all duration-500 ${theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-sky-900/10' : 'bg-white border-slate-100'}`} role="main">
+      <main className={`w-full max-w-lg rounded-[2rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] overflow-hidden border relative transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-red-900/10' : 'bg-white border-slate-100'}`} role="main">
         
         <AnimatePresence mode="wait">
           {view === 'start' && (
@@ -800,8 +577,8 @@ export default function App() {
               role="region"
               aria-labelledby="main-title"
             >
-              <div className={`w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner relative ${theme === 'dark' ? 'bg-slate-800' : 'bg-sky-50'}`} aria-hidden="true">
-                <Award className="text-sky-500" size={56} />
+              <div className={`w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner relative ${theme === 'dark' ? 'bg-slate-800' : 'bg-red-50'}`} aria-hidden="true">
+                <Award className="text-red-500" size={56} />
                 <div className={`absolute -bottom-2 -right-2 p-2 rounded-xl shadow-lg border ${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-50'}`}>
                   <GraduationCap className="text-slate-500" size={20} />
                 </div>
@@ -820,7 +597,7 @@ export default function App() {
                     placeholder="Adınız Soyadınız"
                     aria-label="Adınız Soyadınız"
                     aria-required="true"
-                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 outline-none transition-all font-bold shadow-sm text-lg focus-visible:ring-sky-500 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-600 focus:border-sky-500' : 'bg-white border-slate-100 text-slate-800 placeholder:text-slate-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-50'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 outline-none transition-all font-bold shadow-sm text-lg focus-visible:ring-red-500 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-600 focus:border-red-500' : 'bg-white border-slate-100 text-slate-800 placeholder:text-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-50'}`}
                   />
                 </div>
                 
@@ -828,7 +605,7 @@ export default function App() {
                   onClick={() => studentName.trim() && setView('menu')}
                   disabled={!studentName.trim()}
                   aria-label="Devam Et"
-                  className="w-full bg-sky-700 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl hover:bg-sky-800 transition-all shadow-2xl shadow-sky-200 disabled:opacity-50 disabled:shadow-none active:scale-95 flex items-center justify-center gap-3 focus-visible:ring-4 focus-visible:ring-sky-200 outline-none"
+                  className="w-full bg-red-600 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl hover:bg-red-700 transition-all shadow-2xl shadow-red-200 disabled:opacity-50 disabled:shadow-none active:scale-95 flex items-center justify-center gap-3 focus-visible:ring-4 focus-visible:ring-red-200 outline-none"
                 >
                   Devam Et <ChevronRight size={24} aria-hidden="true" />
                 </button>
@@ -837,20 +614,20 @@ export default function App() {
               <div className="mt-12 pt-8 border-t border-slate-50">
                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">Bizi Takip Edin</p>
                 <div className="flex justify-center gap-6">
-                  <a href="https://www.instagram.com/mefailkyardim/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-sky-700 transition-colors flex flex-col items-center gap-2 group">
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-sky-50 transition-colors">
+                  <a href="https://www.instagram.com/solunumiem/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-red-600 transition-colors flex flex-col items-center gap-2 group">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-red-50 transition-colors">
                       <Instagram size={20} />
                     </div>
                     <span className="text-[10px] font-bold">Instagram</span>
                   </a>
-                  <a href="https://mefailkyardim.com/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors flex flex-col items-center gap-2 group">
+                  <a href="https://www.facebook.com/Solunumiem/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors flex flex-col items-center gap-2 group">
                     <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 transition-colors">
                       <Facebook size={20} />
                     </div>
                     <span className="text-[10px] font-bold">Facebook</span>
                   </a>
-                  <a href="https://www.youtube.com/@MEFAİlkYardım" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-sky-800 transition-colors flex flex-col items-center gap-2 group">
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-sky-50 transition-colors">
+                  <a href="https://www.youtube.com/@solunumilkyardm6965" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-red-700 transition-colors flex flex-col items-center gap-2 group">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-red-50 transition-colors">
                       <Youtube size={20} />
                     </div>
                     <span className="text-[10px] font-bold">YouTube</span>
@@ -869,28 +646,28 @@ export default function App() {
               className="p-6 sm:p-16"
             >
               <div className="mb-10">
-                <p className="text-sky-700 font-black text-xs uppercase tracking-[0.3em] mb-2">Hoş Geldin,</p>
+                <p className="text-red-600 font-black text-xs uppercase tracking-[0.3em] mb-2">Hoş Geldin,</p>
                 <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{studentName}</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
                 <button
                   onClick={() => setView('group-select')}
-                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-sky-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                 >
-                  <div className="w-14 h-14 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-500 group-hover:bg-sky-700 group-hover:text-white transition-colors">
+                  <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-white transition-colors">
                     <BookOpen size={28} />
                   </div>
                   <div className="text-left">
                     <p className={`font-black text-xl ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Modları</p>
                     <p className="text-slate-500 text-sm font-medium">Zamana karşı veya hatasız sınav</p>
                   </div>
-                  <ChevronRight className="ml-auto text-slate-300 group-hover:text-sky-500" size={24} />
+                  <ChevronRight className="ml-auto text-slate-300 group-hover:text-red-500" size={24} />
                 </button>
 
                 <button
                   onClick={() => setView('scenarios')}
-                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-sky-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                 >
                   <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     <MessageCircle size={28} />
@@ -904,7 +681,7 @@ export default function App() {
 
                 <button
                   onClick={() => setView('guide')}
-                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-sky-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                 >
                   <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 group-hover:bg-green-600 group-hover:text-white transition-colors">
                     <Info size={28} />
@@ -916,38 +693,24 @@ export default function App() {
                   <ChevronRight className="ml-auto text-slate-300 group-hover:text-green-500" size={24} />
                 </button>
 
-                <button
-                  onClick={() => setView('wheel')}
-                  className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-6 hover:border-sky-500 hover:shadow-xl transition-all group shadow-md shadow-purple-200 ${theme === 'dark' ? 'bg-gradient-to-r from-indigo-900 to-purple-900 border-indigo-700' : 'bg-gradient-to-r from-indigo-50 to-purple-50 border-purple-100'}`}
-                >
-                  <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors shadow-inner">
-                    <Loader2 size={28} className="group-hover:animate-spin" />
-                  </div>
-                  <div className="text-left">
-                    <p className={`font-black text-xl ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>Şans Çarkı</p>
-                    <p className="text-purple-500 text-sm font-bold">Sınıf içi interaktif yarışma</p>
-                  </div>
-                  <ChevronRight className="ml-auto text-purple-300 group-hover:text-purple-600" size={24} />
-                </button>
-
                 <div className="grid grid-cols-3 gap-2 sm:gap-4">
                   <button
                     onClick={() => setView('about')}
-                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-sky-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-red-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <Info size={20} className="text-slate-400" />
                     <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Hakkımızda</span>
                   </button>
                   <button
                     onClick={() => setView('contact')}
-                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-sky-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-red-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <Phone size={20} className="text-slate-400" />
                     <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>İletişim</span>
                   </button>
                   <button
                     onClick={() => setView('admin-login')}
-                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-sky-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 hover:border-red-500 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <Award size={20} className="text-slate-400" />
                     <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Eğitmen Paneli</span>
@@ -957,7 +720,7 @@ export default function App() {
 
               <button 
                 onClick={() => setView('start')}
-                className="mt-10 w-full text-slate-400 font-black text-xs uppercase tracking-widest hover:text-sky-700 transition-colors"
+                className="mt-10 w-full text-slate-400 font-black text-xs uppercase tracking-widest hover:text-red-600 transition-colors"
               >
                 İsim Değiştir
               </button>
@@ -983,11 +746,11 @@ export default function App() {
                 <div className="grid grid-cols-1 gap-4">
                   <button
                     onClick={() => startQuiz(1, 'normal')}
-                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-sky-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
+                    className={`w-full p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 text-left hover:border-red-500 hover:shadow-xl transition-all group ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <p className="text-sky-700 font-black text-xs uppercase tracking-widest">Normal Mod</p>
-                      <span className="text-[10px] bg-sky-50 text-sky-700 px-2 py-1 rounded-lg font-bold">25 Soru</span>
+                      <p className="text-red-600 font-black text-xs uppercase tracking-widest">Normal Mod</p>
+                      <span className="text-[10px] bg-red-50 text-red-600 px-2 py-1 rounded-lg font-bold">25 Soru</span>
                     </div>
                     <h3 className={`text-xl font-black mb-1 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Grup 1: Temel Eğitim</h3>
                     <p className="text-slate-500 text-sm font-medium">Her soru için 30 saniye süre.</p>
@@ -1102,7 +865,7 @@ export default function App() {
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`p-6 rounded-2xl border-2 flex items-start gap-4 ${scenarioFeedback.type === 'success' ? 'bg-green-50 border-green-100 text-green-900' : scenarioFeedback.type === 'fail' ? 'bg-sky-50 border-sky-100 text-sky-900' : 'bg-blue-50 border-blue-100 text-blue-900'}`}
+                      className={`p-6 rounded-2xl border-2 flex items-start gap-4 ${scenarioFeedback.type === 'success' ? 'bg-green-50 border-green-100 text-green-900' : scenarioFeedback.type === 'fail' ? 'bg-red-50 border-red-100 text-red-900' : 'bg-blue-50 border-blue-100 text-blue-900'}`}
                     >
                       {scenarioFeedback.type === 'success' ? <CheckCircle2 className="shrink-0" /> : scenarioFeedback.type === 'fail' ? <XCircle className="shrink-0" /> : <Info className="shrink-0" />}
                       <div>
@@ -1142,7 +905,7 @@ export default function App() {
                 {GUIDE_ITEMS.map((item, idx) => (
                   <div key={idx} className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-sky-50 text-sky-500 rounded-xl">
+                      <div className="p-2 bg-red-50 text-red-500 rounded-xl">
                         {item.icon}
                       </div>
                       <h3 className={`font-black text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{item.title}</h3>
@@ -1170,16 +933,16 @@ export default function App() {
               </div>
 
               <div className="space-y-8">
-                <div className={`p-8 rounded-[2.5rem] border-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-sky-50 border-sky-100'}`}>
-                  <p className={`text-lg font-bold leading-relaxed ${theme === 'dark' ? 'text-slate-300' : 'text-sky-900'}`}>
-                    Mefa Akademi İlk Yardım Eğitim Merkezi, hayati önem taşıyan ilk yardım bilgilerini modern ve etkileşimli yöntemlerle sunan, Sağlık Bakanlığı onaylı bir eğitim kuruluşudur.
+                <div className={`p-8 rounded-[2.5rem] border-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-red-50 border-red-100'}`}>
+                  <p className={`text-lg font-bold leading-relaxed ${theme === 'dark' ? 'text-slate-300' : 'text-red-900'}`}>
+                    Solunum İlk Yardım Eğitim Merkezi, hayati önem taşıyan ilk yardım bilgilerini modern ve etkileşimli yöntemlerle sunan, Sağlık Bakanlığı onaylı bir eğitim kuruluşudur.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
                   <div className={`p-6 rounded-3xl border-2 ${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-50'}`}>
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-sky-700 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                      <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                         <Award size={24} />
                       </div>
                       <h3 className={`font-black text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Vizyonumuz</h3>
@@ -1191,7 +954,7 @@ export default function App() {
 
                   <div className={`p-6 rounded-3xl border-2 ${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-50'}`}>
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-sky-700 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                      <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                         <GraduationCap size={24} />
                       </div>
                       <h3 className={`font-black text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Eğitim Kalitemiz</h3>
@@ -1203,7 +966,7 @@ export default function App() {
 
                   <div className={`p-6 rounded-3xl border-2 ${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-50'}`}>
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-sky-700 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                      <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                         <HeartPulse size={24} />
                       </div>
                       <h3 className={`font-black text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Neden Biz?</h3>
@@ -1237,8 +1000,8 @@ export default function App() {
 
               <div className="space-y-8">
                 <div className="space-y-4">
-                  <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-sky-500'}`}>
-                    <div className="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-500 shrink-0">
+                  <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-red-500'}`}>
+                    <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 shrink-0">
                       <Phone size={24} />
                     </div>
                     <div>
@@ -1248,8 +1011,8 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-sky-500'}`}>
-                    <div className="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-500 shrink-0">
+                  <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex items-center gap-5 transition-all ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100 hover:border-red-500'}`}>
+                    <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 shrink-0">
                       <MapPin size={24} />
                     </div>
                     <div>
@@ -1265,13 +1028,13 @@ export default function App() {
                 <div className={`pt-6 border-t ${theme === 'dark' ? 'border-slate-800' : 'border-slate-100'}`}>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Sosyal Medya</p>
                   <div className="flex gap-4">
-                    <a href="https://www.instagram.com/mefailkyardim/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-sky-500' : 'bg-slate-50 text-slate-400 hover:bg-sky-50 hover:text-sky-700'}`}>
+                    <a href="https://www.instagram.com/solunumiem/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-red-500' : 'bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600'}`}>
                       <Instagram size={24} />
                     </a>
-                    <a href="https://mefailkyardim.com/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-blue-500' : 'bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600'}`}>
+                    <a href="https://www.facebook.com/Solunumiem/" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-blue-500' : 'bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600'}`}>
                       <Facebook size={24} />
                     </a>
-                    <a href="https://www.youtube.com/@MEFAİlkYardım" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-sky-500' : 'bg-slate-50 text-slate-400 hover:bg-sky-50 hover:text-sky-700'}`}>
+                    <a href="https://www.youtube.com/@solunumilkyardm6965" target="_blank" rel="noopener noreferrer" className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-red-500' : 'bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600'}`}>
                       <Youtube size={24} />
                     </a>
                   </div>
@@ -1289,21 +1052,21 @@ export default function App() {
               role="region"
               aria-label="Sınav Sorusu"
             >
-              <div className={`${theme === 'dark' ? 'bg-slate-900 border-b border-slate-800' : 'bg-sky-700'} p-8 sm:p-10 text-white flex justify-between items-center relative`}>
+              <div className={`${theme === 'dark' ? 'bg-slate-900 border-b border-slate-800' : 'bg-red-600'} p-8 sm:p-10 text-white flex justify-between items-center relative`}>
                 <button 
                   onClick={goBack}
                   aria-label="Ana sayfaya dön"
-                  className={`absolute left-8 top-4 text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-widest border backdrop-blur-sm outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-sky-800/50 border-sky-400/30 hover:bg-sky-900 focus-visible:ring-2 focus-visible:ring-white'}`}
+                  className={`absolute left-8 top-4 text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-widest border backdrop-blur-sm outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-red-700/50 border-red-400/30 hover:bg-red-800 focus-visible:ring-2 focus-visible:ring-white'}`}
                 >
                   ← Ana Sayfaya Dön
                 </button>
                 
                 <div className="mt-6">
                   <h2 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${theme === 'dark' ? 'text-slate-500' : 'text-white/80'}`}>{studentName}</h2>
-                  <p className={`text-xl sm:text-2xl font-black leading-none tracking-tight ${theme === 'dark' ? 'text-white' : 'text-white'}`}>Soru {currentStep + 1} <span className="text-sky-100 text-sm font-bold ml-1 opacity-90">/ {activeQuestions.length}</span></p>
+                  <p className={`text-xl sm:text-2xl font-black leading-none tracking-tight ${theme === 'dark' ? 'text-white' : 'text-white'}`}>Soru {currentStep + 1} <span className="text-red-100 text-sm font-bold ml-1 opacity-90">/ {activeQuestions.length}</span></p>
                 </div>
                 <div 
-                  className={`mt-6 flex items-center gap-3 px-6 py-3 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-sky-800 border-sky-400'} ${timeLeft <= 5 ? 'animate-pulse border-white' : ''}`}
+                  className={`mt-6 flex items-center gap-3 px-6 py-3 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-red-700 border-red-400'} ${timeLeft <= 5 ? 'animate-pulse border-white' : ''}`}
                   aria-live={timeLeft <= 5 ? 'assertive' : 'polite'}
                   aria-label={`Kalan süre: ${timeLeft} saniye`}
                 >
@@ -1314,7 +1077,7 @@ export default function App() {
               
               <div className={`h-3 w-full ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'}`} role="progressbar" aria-valuenow={Math.round(((currentStep + (isAnswered ? 1 : 0)) / activeQuestions.length) * 100)} aria-valuemin={0} aria-valuemax={100}>
                 <motion.div 
-                  className="h-full bg-sky-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]" 
+                  className="h-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]" 
                   animate={{ width: `${((currentStep + (isAnswered ? 1 : 0)) / activeQuestions.length) * 100}%` }} 
                 />
               </div>
@@ -1335,7 +1098,7 @@ export default function App() {
                     <button
                       onClick={() => speak(activeQuestions[currentStep].question)}
                       disabled={isSpeaking}
-                      className={`p-3 rounded-2xl transition-all disabled:opacity-50 ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-sky-500' : 'bg-slate-50 text-slate-400 hover:bg-sky-50 hover:text-sky-700'}`}
+                      className={`p-3 rounded-2xl transition-all disabled:opacity-50 ${theme === 'dark' ? 'bg-slate-800 text-slate-400 hover:text-red-500' : 'bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600'}`}
                       title="Soruyu Dinle"
                     >
                       {isSpeaking ? <Loader2 className="animate-spin" size={24} /> : <Volume2 size={24} />}
@@ -1350,11 +1113,11 @@ export default function App() {
                       
                       if (!isAnswered) {
                         btnClass += theme === 'dark' 
-                          ? "border-slate-800 bg-slate-800/50 hover:border-sky-500 hover:bg-slate-800 text-slate-300" 
-                          : "border-slate-100 bg-white hover:border-sky-500 hover:bg-sky-50 hover:shadow-lg text-slate-800 active:scale-[0.98] focus-visible:border-sky-500 focus-visible:ring-4 focus-visible:ring-sky-50";
+                          ? "border-slate-800 bg-slate-800/50 hover:border-red-500 hover:bg-slate-800 text-slate-300" 
+                          : "border-slate-100 bg-white hover:border-red-500 hover:bg-red-50 hover:shadow-lg text-slate-800 active:scale-[0.98] focus-visible:border-red-500 focus-visible:ring-4 focus-visible:ring-red-50";
                       }
                       else if (isCorrect) btnClass += "border-green-500 bg-green-500/10 text-green-500 shadow-md";
-                      else if (isSelected) btnClass += "border-sky-500 bg-sky-500/10 text-sky-500 shadow-md";
+                      else if (isSelected) btnClass += "border-red-500 bg-red-500/10 text-red-500 shadow-md";
                       else btnClass += "border-slate-800 opacity-40 grayscale-[0.5] text-slate-500";
 
                       return (
@@ -1365,12 +1128,12 @@ export default function App() {
                           className={btnClass}
                           aria-label={`${String.fromCharCode(65 + index)} şıkkı: ${option}`}
                         >
-                          <span className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-5 font-black text-base transition-all ${!isAnswered ? (theme === 'dark' ? 'bg-slate-700 text-slate-400 group-hover:bg-sky-500 group-hover:text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-sky-500 group-hover:text-white') : isCorrect ? 'bg-green-500 text-white' : isSelected ? 'bg-sky-500 text-white' : 'bg-slate-800'}`} aria-hidden="true">
+                          <span className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-5 font-black text-base transition-all ${!isAnswered ? (theme === 'dark' ? 'bg-slate-700 text-slate-400 group-hover:bg-red-500 group-hover:text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-red-500 group-hover:text-white') : isCorrect ? 'bg-green-500 text-white' : isSelected ? 'bg-red-500 text-white' : 'bg-slate-800'}`} aria-hidden="true">
                             {String.fromCharCode(65 + index)}
                           </span>
                           <span className="font-bold text-base sm:text-lg flex-1 leading-snug">{option}</span>
                           {isAnswered && isCorrect && <CheckCircle2 className="text-green-500 shrink-0 ml-2" size={28} aria-hidden="true" />}
-                          {isAnswered && isSelected && !isCorrect && <XCircle className="text-sky-500 shrink-0 ml-2" size={28} aria-hidden="true" />}
+                          {isAnswered && isSelected && !isCorrect && <XCircle className="text-red-500 shrink-0 ml-2" size={28} aria-hidden="true" />}
                         </button>
                       );
                     })}
@@ -1381,7 +1144,7 @@ export default function App() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`p-6 rounded-[1.75rem] border-2 ${selectedAnswer === activeQuestions[currentStep].correct ? 'border-green-100 bg-green-50/50 text-green-900' : 'border-sky-100 bg-sky-50/50 text-sky-900'}`}
+                        className={`p-6 rounded-[1.75rem] border-2 ${selectedAnswer === activeQuestions[currentStep].correct ? 'border-green-100 bg-green-50/50 text-green-900' : 'border-red-100 bg-red-50/50 text-red-900'}`}
                         role="alert"
                       >
                         <div className="flex items-start justify-between gap-4">
@@ -1400,7 +1163,7 @@ export default function App() {
                           <button
                             onClick={() => speak(activeQuestions[currentStep].explanation)}
                             disabled={isSpeaking}
-                            className="p-2 bg-white/50 text-slate-500 rounded-xl hover:bg-white hover:text-sky-700 transition-all disabled:opacity-50 shrink-0"
+                            className="p-2 bg-white/50 text-slate-500 rounded-xl hover:bg-white hover:text-red-600 transition-all disabled:opacity-50 shrink-0"
                             title="Açıklamayı Dinle"
                           >
                             {isSpeaking ? <Loader2 className="animate-spin" size={18} /> : <Volume2 size={18} />}
@@ -1426,7 +1189,7 @@ export default function App() {
                           animate={{ opacity: 1, y: 0 }}
                           onClick={finishQuiz} 
                           aria-label="Sınavı bitir ve sonuçları gör"
-                          className="w-full bg-sky-700 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-sky-800 transition-all shadow-2xl active:scale-95 focus-visible:ring-4 focus-visible:ring-sky-200 outline-none"
+                          className="w-full bg-red-600 text-white py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-red-700 transition-all shadow-2xl active:scale-95 focus-visible:ring-4 focus-visible:ring-red-200 outline-none"
                         >
                           Sınavı Bitir <Award size={28} aria-hidden="true" />
                         </motion.button>
@@ -1442,14 +1205,14 @@ export default function App() {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
                         <div className="relative z-10">
                           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Award className="text-sky-500 animate-bounce" size={32} />
+                            <Award className="text-red-500 animate-bounce" size={32} />
                           </div>
                           <h3 className="text-xl font-black mb-2">Sınav Tamamlandı!</h3>
                           <p className="text-slate-400 font-medium">Sonuçlar hesaplanıyor ve gösteriliyor...</p>
                           <div className="mt-6 flex justify-center gap-1">
-                            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 bg-sky-500 rounded-full" />
-                            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-sky-500 rounded-full" />
-                            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-sky-500 rounded-full" />
+                            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 bg-red-500 rounded-full" />
+                            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-red-500 rounded-full" />
+                            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-red-500 rounded-full" />
                           </div>
                         </div>
                       </motion.div>
@@ -1469,8 +1232,8 @@ export default function App() {
               role="region"
               aria-label="Sınav Sonucu"
             >
-              <div className={`w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-10 shadow-2xl relative ${theme === 'dark' ? 'bg-slate-800' : 'bg-sky-50'}`} aria-hidden="true">
-                <Award className="text-sky-500" size={64} />
+              <div className={`w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-10 shadow-2xl relative ${theme === 'dark' ? 'bg-slate-800' : 'bg-red-50'}`} aria-hidden="true">
+                <Award className="text-red-500" size={64} />
                 <motion.div 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -1482,7 +1245,7 @@ export default function App() {
               </div>
               
               <div className="mb-10">
-                <p className="text-sky-700 font-black text-xs uppercase tracking-[0.4em] mb-3">Sınav Tamamlandı</p>
+                <p className="text-red-600 font-black text-xs uppercase tracking-[0.4em] mb-3">Sınav Tamamlandı</p>
                 <h2 className={`text-3xl sm:text-4xl font-black tracking-tight mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{studentName}</h2>
                 <div className="flex items-center justify-center gap-2">
                   <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
@@ -1498,7 +1261,7 @@ export default function App() {
                 </div>
                 <div className={`p-8 rounded-[2.5rem] border-2 shadow-sm ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-50'}`}>
                   <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Yanlış</p>
-                  <p className="text-3xl sm:text-4xl font-black text-sky-500 tabular-nums">{activeQuestions.length - score}</p>
+                  <p className="text-3xl sm:text-4xl font-black text-red-500 tabular-nums">{activeQuestions.length - score}</p>
                 </div>
               </div>
 
@@ -1518,199 +1281,6 @@ export default function App() {
               </div>
             </motion.div>
           )}
-          {view === 'wheel' && (
-            <motion.div 
-              key="wheel"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full flex flex-col items-center relative py-6"
-            >
-              <div className="w-full flex justify-between items-center mb-10 px-4">
-                 <button onClick={() => setView('menu')} className={`p-3 rounded-2xl transition-colors font-bold flex items-center gap-2 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-sky-50 hover:bg-sky-100 text-sky-700'}`}>
-                   <ArrowLeft size={20} /> Ana Menü
-                 </button>
-                 <h2 className={`text-2xl font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sıradakİ Kursİyer!</h2>
-                 <div className="w-10"></div>
-              </div>
-
-              <div className="relative w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] mt-4 mb-8 bg-slate-900 rounded-full p-2 sm:p-4 md:p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                 {/* LED Işıkları */}
-                 <div className="absolute inset-0 rounded-full border-[6px] border-yellow-500 shadow-[0_0_15px_#eab308]"></div>
-                 {Array.from({length: 24}).map((_, i) => (
-                    <div 
-                      key={`led-${i}`} 
-                      className="absolute inset-0 flex justify-center z-10"
-                      style={{ transform: `rotate(${i * 15}deg)` }}
-                    >
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-200 mt-1 sm:mt-1 md:mt-2 shadow-[0_0_10px_#fef08a,0_0_20px_#fef08a] animate-pulse" style={{ animationDelay: `${i % 2 === 0 ? 0 : 0.5}s` }}></div>
-                    </div>
-                 ))}
-
-                <div className="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-14 sm:w-16 sm:h-20 z-40 drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]">
-                   <div className="w-full h-full bg-gradient-to-b from-yellow-300 to-yellow-600" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }}></div>
-                </div>
-                
-                <motion.div 
-                  ref={wheelRef}
-                  className="w-full h-full rounded-full shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] relative overflow-hidden"
-                  animate={{ rotate: wheelRotation }}
-                  transition={{ duration: 8.5, ease: [0.15, 0.85, 0.25, 1] }}
-                  style={{
-                    background: `conic-gradient(${WHEEL_SEGMENTS.map((s, i) => `${s.color} ${i * (360 / WHEEL_SEGMENTS.length)}deg ${(i + 1) * (360 / WHEEL_SEGMENTS.length)}deg`).join(', ')})`
-                  }}
-                >
-                  {WHEEL_SEGMENTS.map((seg, i) => {
-                    const angle = 360 / WHEEL_SEGMENTS.length;
-                    const rotate = (i * angle) + (angle / 2);
-                    return (
-                      <div key={i} className="absolute top-0 left-0 w-full h-full" style={{ transform: `rotate(${rotate}deg)` }}>
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 sm:w-16 h-1/2 flex items-start justify-center pt-2 sm:pt-4 md:pt-8">
-                          <span 
-                            className="font-black text-white text-[10px] sm:text-[14px] md:text-[16px] leading-none uppercase tracking-widest block whitespace-nowrap" 
-                            style={{ 
-                              writingMode: 'vertical-rl',
-                              transform: 'rotate(180deg)',
-                              textShadow: '0px 2px 5px rgba(0,0,0,0.8)',
-                            }}
-                          >
-                            {seg.label}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </motion.div>
-                
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-slate-100 to-slate-400 rounded-full border-4 sm:border-8 border-slate-900 shadow-[inset_0_-5px_10px_rgba(0,0,0,0.3),0_10px_20px_rgba(0,0,0,0.5)] z-30 flex items-center justify-center">
-                  <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-400 to-sky-700 rounded-full shadow-inner flex items-center justify-center">
-                     <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-
-              <button 
-                onClick={spinWheel} 
-                disabled={isSpinning}
-                className={`mt-16 px-14 py-6 rounded-full font-black text-2xl uppercase tracking-widest shadow-xl transition-all ${isSpinning ? 'bg-slate-300 text-slate-500 cursor-not-allowed scale-95' : 'bg-sky-700 text-white hover:bg-sky-800 hover:scale-105 active:scale-95 shadow-sky-200'}`}
-              >
-                {isSpinning ? 'Çevriliyor...' : 'Çarkı Çevir!'}
-              </button>
-
-              <AnimatePresence>
-                {wheelResult && !isSpinning && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-10 rounded-[3rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] border-8 border-sky-500 z-50 text-center w-[90%] max-w-lg"
-                  >
-                    <h3 className="text-3xl font-black text-slate-400 uppercase tracking-widest mb-4">ŞANSINA ÇIKAN:</h3>
-                    <p className={`text-4xl sm:text-5xl font-black text-slate-900 uppercase leading-tight ${WHEEL_SEGMENTS.find(s => s.label === wheelResult)?.fullText ? 'mb-4' : 'mb-10'}`}>{wheelResult}</p>
-                    
-                    {WHEEL_SEGMENTS.find(s => s.label === wheelResult)?.fullText && (
-                      <p className="text-xl font-bold text-sky-700 mb-8 border-2 border-sky-200 bg-sky-50 p-4 rounded-2xl">
-                        {WHEEL_SEGMENTS.find(s => s.label === wheelResult)?.fullText}
-                      </p>
-                    )}
-                    
-                    {wheelQuestion && !showWheelQuestion && (
-                      <button onClick={() => setShowWheelQuestion(true)} className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl text-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 uppercase tracking-widest">
-                        Soruyu Göster
-                      </button>
-                    )}
-                    
-                    {!wheelQuestion && (
-                      <button onClick={() => setWheelResult(null)} className="w-full bg-slate-100 text-slate-800 font-black py-5 rounded-2xl text-xl hover:bg-slate-200 transition-colors uppercase tracking-widest">
-                        Kapat
-                      </button>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence>
-                {showWheelQuestion && wheelQuestion && (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="fixed inset-0 bg-slate-900/95 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"
-                  >
-                    <div className="bg-white rounded-[2.5rem] p-6 sm:p-12 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                      <div className="flex justify-between items-center mb-8">
-                        <span className="font-black text-sky-700 bg-sky-100 px-4 py-2 rounded-xl text-sm uppercase tracking-widest border-2 border-sky-200">{wheelResult}</span>
-                        <button onClick={() => { setShowWheelQuestion(false); setWheelResult(null); }} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-sky-50 hover:text-sky-700 transition-colors"><XCircle size={28} /></button>
-                      </div>
-                      
-                      <h3 className="text-2xl sm:text-3xl font-black text-slate-800 mb-10 leading-snug">
-                        {wheelQuestion.question}
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        {wheelQuestion.options.map((opt, i) => {
-                          const isSelected = wheelSelectedAnswer === i;
-                          const isCorrect = i === wheelQuestion.correct;
-                          
-                          // Joker: İki Şıkkı Ele mantığı
-                          let isEliminated = false;
-                          if (wheelResult === 'İki Şık Ele' && wheelSelectedAnswer === null) {
-                             const wrongOptions = wheelQuestion.options.map((_, idx) => idx).filter(idx => idx !== wheelQuestion.correct);
-                             // Eleme işlemi görsel amaçlı, rastgele 2 tanesini seçeceğiz.
-                             // Sabit kalması için basit matematik.
-                             if (wrongOptions.indexOf(i) === 0 || wrongOptions.indexOf(i) === 1) {
-                               isEliminated = true;
-                             }
-                          }
-                          
-                          if (isEliminated) return null; // Şıkkı tamamen gizle
-                          
-                          let btnClass = "w-full p-5 sm:p-6 rounded-2xl border-4 text-left font-bold text-lg sm:text-xl transition-all ";
-                          
-                          if (wheelSelectedAnswer === null) {
-                            btnClass += "border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50 text-slate-700 hover:scale-[1.02] active:scale-[0.98]";
-                          } else {
-                            if (isCorrect) {
-                              btnClass += "border-green-500 bg-green-100 text-green-800 shadow-lg shadow-green-100";
-                            } else if (isSelected) {
-                              btnClass += "border-sky-500 bg-sky-100 text-sky-900 shadow-lg shadow-sky-100";
-                            } else {
-                              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
-                            }
-                          }
-
-                          return (
-                            <button 
-                              key={i} 
-                              onClick={() => handleWheelAnswer(i)}
-                              disabled={wheelSelectedAnswer !== null}
-                              className={btnClass}
-                            >
-                              <div className="flex gap-4 items-center">
-                                <span className={`w-10 h-10 flex items-center justify-center rounded-xl font-black ${wheelSelectedAnswer === null ? 'bg-slate-100 text-slate-500' : (isCorrect ? 'bg-green-200 text-green-900' : (isSelected ? 'bg-sky-200 text-sky-900' : 'bg-slate-100 text-slate-400'))}`}>
-                                  {String.fromCharCode(65+i)}
-                                </span>
-                                <span>{opt}</span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {wheelSelectedAnswer !== null && (
-                        <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className={`mt-10 p-8 rounded-[2rem] border-4 ${isWheelAnswerCorrect ? 'bg-green-50 border-green-200 text-green-900' : 'bg-sky-50 border-sky-200 text-sky-900'}`}>
-                          <div className="flex items-center gap-4 mb-4">
-                            {isWheelAnswerCorrect ? <CheckCircle2 size={32} className="text-green-500"/> : <XCircle size={32} className="text-sky-500"/>}
-                            <p className="font-black text-2xl uppercase tracking-widest">{isWheelAnswerCorrect ? 'HARİKA! DOĞRU CEVAP!' : 'MAALESEF YANLIŞ CEVAP!'}</p>
-                          </div>
-                          <p className="font-bold text-lg leading-relaxed opacity-90">{wheelQuestion.explanation}</p>
-                        </motion.div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
           {view === 'admin-login' && (
             <motion.div 
               key="admin-login"
@@ -1731,10 +1301,10 @@ export default function App() {
                   type="password"
                   value={adminPin}
                   onChange={e => setAdminPin(e.target.value)}
-                  className={`w-full p-4 rounded-2xl border-2 font-bold focus-visible:border-sky-500 outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-100'}`}
+                  className={`w-full p-4 rounded-2xl border-2 font-bold focus-visible:border-red-500 outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-100'}`}
                   placeholder="Şifre"
                 />
-                <button onClick={loginAdmin} className="w-full bg-sky-700 text-white py-4 rounded-2xl font-black mt-4 hover:bg-sky-800">Giriş Yap</button>
+                <button onClick={loginAdmin} className="w-full bg-red-600 text-white py-4 rounded-2xl font-black mt-4 hover:bg-red-700">Giriş Yap</button>
               </div>
             </motion.div>
           )}
@@ -1745,102 +1315,29 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-4 sm:p-10 w-full"
+              className="p-6 sm:p-16"
             >
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-                <button onClick={() => setView('menu')} className={`p-3 rounded-2xl transition-colors font-bold flex items-center gap-2 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-sky-50 hover:bg-sky-100 text-sky-700'}`}>
-                  <ArrowLeft size={20} /> Ana Menü
+              <div className="flex items-center gap-4 mb-10">
+                <button onClick={() => setView('menu')} className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
+                  <ArrowLeft size={24} className="text-slate-400" />
                 </button>
-                <div className={`flex gap-2 p-1.5 rounded-2xl shadow-inner ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'}`}>
-                   <button onClick={() => setAdminTab('scores')} className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'scores' ? (theme === 'dark' ? 'bg-slate-700 shadow-md text-white' : 'bg-white shadow-md text-slate-900') : 'text-slate-500 hover:text-slate-700'}`}>Sonuçlar</button>
-                   <button onClick={() => setAdminTab('questions')} className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'questions' ? (theme === 'dark' ? 'bg-slate-700 shadow-md text-white' : 'bg-white shadow-md text-slate-900') : 'text-slate-500 hover:text-slate-700'}`}>Soru Bankası</button>
-                </div>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sınav Sonuçları</h2>
               </div>
-
-              {adminTab === 'scores' && (
-                <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
-                  {scoresList.length === 0 ? <p className="text-slate-500 font-medium text-center py-10">Kayıtlı sınav sonucu bulunmamaktadır.</p> : scoresList.slice().reverse().map((s: any, i: number) => (
-                    <div key={i} className={`p-5 sm:p-6 rounded-3xl border-2 shadow-sm ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`font-black text-lg ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.name}</span>
-                        <span className="font-black px-3 py-1 rounded-xl bg-sky-50 text-sky-700 text-sm tracking-widest uppercase">{s.score} / {s.totalQuestions} Doğru</span>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                {scoresList.length === 0 ? (
+                  <p className="text-slate-500 font-medium">Henüz kayıtlı bir sonuç yok.</p>
+                ) : (
+                  scoresList.slice().reverse().map((s, i) => (
+                    <div key={i} className={`p-4 rounded-2xl border-2 flex flex-col gap-1 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
+                      <div className="flex justify-between items-center">
+                        <span className={`font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.name}</span>
+                        <span className={`font-bold px-2 py-1 rounded bg-green-100 text-green-600 text-xs uppercase`}>{s.score} / {s.totalQuestions} DOĞRU</span>
                       </div>
-                      <span className="text-xs text-slate-400 font-bold mb-4 block">{new Date(s.date).toLocaleString('tr-TR')} • Mod: {s.mode}</span>
-                      
-                      {s.wrongAnswers && s.wrongAnswers.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-sky-100">
-                          <p className="text-xs font-black text-sky-700 uppercase tracking-widest mb-3 flex items-center gap-2"><XCircle size={16}/> Yanlış Bilinen Sorular</p>
-                          <ul className="space-y-2">
-                            {s.wrongAnswers.map((w: string, idx: number) => (
-                              <li key={idx} className="bg-sky-50 p-3 rounded-xl text-sky-900 font-bold text-sm leading-snug">
-                                {w}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      <span className="text-xs text-slate-400">{new Date(s.date).toLocaleString('tr-TR')} • Mod: {s.mode}</span>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {adminTab === 'questions' && (
-                <div className="space-y-8 max-h-[65vh] overflow-y-auto pr-2 pb-20" id="question-bank-scroll">
-                  <div className={`p-5 sm:p-8 rounded-3xl border-2 shadow-lg ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
-                    <h3 className={`text-xl sm:text-2xl font-black mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{newQuestion.id ? '✏️ Soruyu Düzenle' : '➕ Yeni Soru Ekle'}</h3>
-                    <div className="space-y-5">
-                      <div>
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Soru Metni</label>
-                        <textarea placeholder="Sorunun kendisini buraya yazın..." value={newQuestion.question || ''} onChange={e=>setNewQuestion({...newQuestion, question: e.target.value})} className={`w-full p-4 rounded-2xl border-2 outline-none focus:border-sky-500 font-bold min-h-[4rem] ${theme === 'dark' ? 'bg-slate-700 border-slate-600 text-white' : 'bg-slate-50 text-slate-800'}`} />
-                      </div>
-                      
-                      <div>
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Şıklar (Doğru olanı işaretleyin)</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {newQuestion.options?.map((opt: string, oIdx: number) => (
-                            <div key={oIdx} className={`flex items-center gap-3 p-3 rounded-2xl border-2 pl-4 focus-within:border-sky-400 transition-colors ${theme === 'dark' ? 'bg-slate-700 border-slate-600' : 'bg-slate-50 border-slate-200'}`}>
-                              <input type="radio" name="correctOption" checked={newQuestion.correct === oIdx} onChange={() => setNewQuestion({...newQuestion, correct: oIdx})} className="w-6 h-6 accent-sky-500 cursor-pointer" />
-                              <input type="text" placeholder={`${String.fromCharCode(65+oIdx)} Şıkkı`} value={opt} onChange={e=>{const nopts=[...(newQuestion.options || [])]; nopts[oIdx]=e.target.value; setNewQuestion({...newQuestion, options: nopts})}} className={`w-full bg-transparent outline-none text-base font-bold ${theme === 'dark' ? 'text-white placeholder:text-slate-500' : 'text-slate-800'}`} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Açıklama (Yanlış cevaplandığında gösterilecek)</label>
-                        <textarea placeholder="Neden bu cevap doğru? Açıklaması..." value={newQuestion.explanation || ''} onChange={e=>setNewQuestion({...newQuestion, explanation: e.target.value})} className={`w-full p-4 rounded-2xl border-2 outline-none focus:border-sky-500 font-bold min-h-[4rem] ${theme === 'dark' ? 'bg-slate-700 border-slate-600 text-white' : 'bg-slate-50 text-slate-800'}`} />
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t-2 border-slate-100">
-                        <button onClick={handleSaveQuestion} className="bg-sky-700 shadow-xl shadow-sky-200 text-white font-black px-8 py-4 rounded-2xl hover:bg-sky-800 transition-all text-lg flex-1 sm:flex-none">Sisteme Kaydet</button>
-                        {newQuestion.id && <button onClick={()=>setNewQuestion({ options: ['', '', '', ''], correct: 0, question: '', explanation: '' })} className="bg-slate-200 text-slate-600 font-black px-8 py-4 rounded-2xl hover:bg-slate-300 transition-all text-lg flex-1 sm:flex-none">İptal</button>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Mevcut Sorular ({adminQuestions.length})</h3>
-                    {adminQuestions.map((q: Question, i: number) => (
-                      <div key={q.id} className={`p-4 sm:p-6 rounded-3xl border-2 shadow-sm flex flex-col gap-4 group hover:border-sky-300 transition-colors ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
-                        <div className="flex-1">
-                          <p className={`font-bold text-base sm:text-lg leading-snug mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{i+1}. {q.question}</p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                             {q.options.map((opt: string, oId: number) => (
-                               <div key={oId} className={`text-xs font-bold p-2 rounded-lg ${oId === q.correct ? 'bg-green-100 text-green-700 border border-green-200' : (theme === 'dark' ? 'bg-slate-700 text-slate-400 border border-slate-600' : 'bg-slate-50 text-slate-500 border border-slate-100')}`}>
-                                 {String.fromCharCode(65+oId)}) {opt}
-                               </div>
-                             ))}
-                          </div>
-                        </div>
-                        <div className="flex gap-2 shrink-0 w-full">
-                          <button onClick={() => { setNewQuestion(q); document.getElementById('question-bank-scroll')?.scrollTo({top:0, behavior:'smooth'}); }} className="flex-1 px-5 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-black uppercase tracking-widest transition-colors">Düzenle</button>
-                          <button onClick={() => handleDeleteQuestion(q.id)} className="flex-1 px-5 py-3 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-xs font-black uppercase tracking-widest transition-colors">Sil</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1859,7 +1356,7 @@ export default function App() {
                 exit={{ scale: 0.9, opacity: 0 }}
                 className="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl text-center"
               >
-                <div className="w-20 h-20 bg-sky-50 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                   <RotateCcw size={40} />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-4">Emin misiniz?</h3>
@@ -1867,7 +1364,7 @@ export default function App() {
                 <div className="flex flex-col gap-3">
                   <button 
                     onClick={confirmExit}
-                    className="w-full bg-sky-700 text-white py-4 rounded-2xl font-black hover:bg-sky-800 transition-all shadow-lg shadow-sky-100"
+                    className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-lg shadow-red-100"
                   >
                     Evet, Çıkış Yap
                   </button>

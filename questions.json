@@ -1,0 +1,602 @@
+[
+  {
+    "id": 1,
+    "question": "Yetişkinlerde temel yaşam desteği uygulanırken göğüs kemiği kaç cm aşağı inecek şekilde bası uygulanır?",
+    "options": [
+      "3 cm",
+      "5 cm",
+      "7 cm",
+      "10 cm"
+    ],
+    "correct": 1,
+    "explanation": "Yetişkinlerde göğüs kemiği 5 cm aşağı inecek şekilde bası uygulanmalıdır. 3 cm yetersizdir, 7 cm ve üzeri ise kaburga kırıklarına ve iç organ hasarına yol açabilir."
+  },
+  {
+    "id": 2,
+    "question": "Bebeklerde (0-1 yaş) tam tıkanıklık durumunda (Heimlich Manevrası) nereye vuru yapılır?",
+    "options": [
+      "Sırtın ortasına, kürek kemikleri arasına",
+      "Göğüs kafesinin altına",
+      "Karına sertçe",
+      "Omuz başına"
+    ],
+    "correct": 0,
+    "explanation": "Bebeklerde Heimlich manevrası için bebek kol üzerine yüzüstü yatırılır ve sırtın ortasına, kürek kemikleri arasına 5 kez vuru yapılır."
+  },
+  {
+    "id": 3,
+    "question": "Burun kanamasında yapılması gereken ilk yardım hangisidir?",
+    "options": [
+      "Baş geriye atılır",
+      "Burun deliklerine pamuk tıkanır",
+      "Baş hafifçe öne eğilir, burun kanatları 5 dk sıkılır",
+      "Sırt üstü yatırılır"
+    ],
+    "correct": 2,
+    "explanation": "Burun kanamasında baş hafifçe öne eğilmeli ve burun kanatları 5 dakika boyunca sıkılmalıdır. Başın geriye atılması kanın yutağa akmasına neden olabilir."
+  },
+  {
+    "id": 4,
+    "question": "Kimyasal madde yanıklarında ilk yardımda ne yapılmalıdır?",
+    "options": [
+      "Yoğurt sürülmelidir",
+      "Bölge en az 20 dk tazyiksiz bol su ile yıkanmalıdır",
+      "Hemen sargı beziyle kapatılmalıdır",
+      "Diş macunu sürülmelidir"
+    ],
+    "correct": 1,
+    "explanation": "Kimyasal yanıklarda bölge en az 20 dakika boyunca tazyiksiz bol su ile yıkanarak kimyasalın uzaklaştırılması sağlanmalıdır."
+  },
+  {
+    "id": 5,
+    "question": "Kan şekeri düşüklüğü belirtileri gösteren bilinci açık bir hastaya ne verilmelidir?",
+    "options": [
+      "Tuzlu ayran",
+      "Sadece su",
+      "Şekerli su veya meyve suyu",
+      "Hiçbir şey verilmez"
+    ],
+    "correct": 2,
+    "explanation": "Bilinci açık hastada kan şekerini hızla yükseltmek için şekerli su veya meyve suyu verilmelidir."
+  },
+  {
+    "id": 6,
+    "question": "Kaza yerinde ilk aşama nedir?",
+    "options": [
+      "Güvenlik/Koruma",
+      "Bildirme",
+      "Kurtarma",
+      "Tedavi"
+    ],
+    "correct": 0,
+    "explanation": "İlk yardımın temel aşamaları Koruma, Bildirme, Kurtarma şeklindedir. Güvenliği sağlamak (Koruma) ilk adımdır."
+  },
+  {
+    "id": 7,
+    "question": "Bak-Dinle-Hisset süresi ne kadardır?",
+    "options": [
+      "5 saniye",
+      "10 saniye",
+      "15 saniye",
+      "20 saniye"
+    ],
+    "correct": 1,
+    "explanation": "Hastanın solunumu olup olmadığını anlamak için yapılan Bak-Dinle-Hisset yöntemi 10 saniye boyunca uygulanmalıdır."
+  },
+  {
+    "id": 8,
+    "question": "Yetişkinlerde kalp masajı/suni solunum oranı nedir?",
+    "options": [
+      "15/2",
+      "30/2",
+      "30/5",
+      "15/5"
+    ],
+    "correct": 1,
+    "explanation": "Yetişkinlerde temel yaşam desteği 30 kalp masajı ve 2 suni solunum (30/2) şeklinde uygulanır."
+  },
+  {
+    "id": 9,
+    "question": "Çocuklarda temel yaşam desteğine kaç kurtarıcı solukla başlanır?",
+    "options": [
+      "1",
+      "2",
+      "5",
+      "10"
+    ],
+    "correct": 2,
+    "explanation": "Bebek ve çocuklarda temel yaşam desteğine 5 kurtarıcı soluk verilerek başlanır."
+  },
+  {
+    "id": 10,
+    "question": "Koma pozisyonu hangi durumda verilir?",
+    "options": [
+      "Bilinci açık, solunumu yok",
+      "Bilinci kapalı, solunumu var",
+      "Bilinci kapalı, solunumu yok",
+      "Bilinci açık, solunumu var"
+    ],
+    "correct": 1,
+    "explanation": "Koma pozisyonu, bilinci kapalı ancak solunumu olan hastalara, dilin geriye kaçmasını veya kusmuğun akciğere gitmesini önlemek için verilir."
+  },
+  {
+    "id": 11,
+    "question": "Sara krizinde ne yapılmaz?",
+    "options": [
+      "Ağız açılmaya çalışılmaz",
+      "Sert cisim ısırttırılmaz",
+      "Kilitlenen çene zorlanmaz",
+      "Hepsi"
+    ],
+    "correct": 3,
+    "explanation": "Sara krizinde hastanın ağzı açılmaya çalışılmaz, kilitlenen çene zorlanmaz ve sert cisim ısırttırılmaz. Sadece etraftaki tehlikeler uzaklaştırılır."
+  },
+  {
+    "id": 12,
+    "question": "Akrep sokmasında ne yapılır?",
+    "options": [
+      "Sıcak uygulama",
+      "Soğuk uygulama",
+      "Yara emilir",
+      "Yara kesilir"
+    ],
+    "correct": 1,
+    "explanation": "Akrep sokmasında bölgeye soğuk uygulama yapılarak zehrin yayılması yavaşlatılır. Yara asla emilmez veya kesilmez."
+  },
+  {
+    "id": 13,
+    "question": "Donmalarda ne yapılmaz?",
+    "options": [
+      "Sıcak suyla yıkanmaz",
+      "Karla ovulmaz",
+      "Hemen ısıtılmaz",
+      "Hepsi"
+    ],
+    "correct": 3,
+    "explanation": "Donan bölge asla karla ovulmaz, sıcak suya sokulmaz veya hemen ısıtılmaz. Oda sıcaklığında yavaşça ısınması sağlanır."
+  },
+  {
+    "id": 14,
+    "question": "Hayvan ısırmalarında yara nasıl yıkanır?",
+    "options": [
+      "Alkolle",
+      "Sabunlu suyla 5 dk",
+      "Tuzlu suyla",
+      "Yıkanmaz"
+    ],
+    "correct": 1,
+    "explanation": "Hayvan ısırmalarında yara sabunlu suyla en az 5 dakika boyunca yıkanarak enfeksiyon riski azaltılmalıdır."
+  },
+  {
+    "id": 15,
+    "question": "Kırıklarda ilk yardımın temel kuralı nedir?",
+    "options": [
+      "Kırık yerine oturtulur",
+      "Hareketsizlik sağlanır (Tespit)",
+      "Sıcak uygulama yapılır",
+      "Masaj yapılır"
+    ],
+    "correct": 1,
+    "explanation": "Kırıklarda en önemli kural kırık bölgenin hareket etmesini engellemek (tespit etmek) ve hastayı sarsmadan sevk etmektir."
+  },
+  {
+    "id": 16,
+    "question": "Sıcak çarpmasında hasta nereye alınır?",
+    "options": [
+      "Güneşe",
+      "Serin ve havadar yer",
+      "Sıcak su altına",
+      "Kapalı dar alan"
+    ],
+    "correct": 1,
+    "explanation": "Sıcak çarpmasında hasta hemen serin ve havadar bir yere alınmalı, giysileri gevşetilmelidir."
+  },
+  {
+    "id": 17,
+    "question": "Zehirlenmelerde genel kural nedir?",
+    "options": [
+      "Kusturulur",
+      "Kusturulmaz (İstisnalar hariç)",
+      "Bol yemek yedirilir",
+      "Yoğurt yedirilir"
+    ],
+    "correct": 1,
+    "explanation": "Zehirlenmelerde (özellikle yakıcı madde içilmişse) hasta asla kusturulmaz, çünkü madde yemek borusuna ikinci kez zarar verebilir."
+  },
+  {
+    "id": 18,
+    "question": "Göze yabancı cisim kaçtığında ne yapılır?",
+    "options": [
+      "Göz ovulur",
+      "Bol suyla yıkanır",
+      "Cımbızla çıkarılır",
+      "Kapatılmaz"
+    ],
+    "correct": 1,
+    "explanation": "Göze yabancı cisim kaçtığında göz ovulmamalı, bol suyla yıkanmalıdır. Çıkmıyorsa doktora gidilmelidir."
+  },
+  {
+    "id": 19,
+    "question": "Kulağa böcek kaçtığında ne yapılmalıdır?",
+    "options": [
+      "Işık tutulur",
+      "Yağ damlatılır",
+      "Doktora gidilir",
+      "Kulak çöpüyle çıkarılır"
+    ],
+    "correct": 2,
+    "explanation": "Kulağa böcek kaçtığında ışık tutulmaz veya bir şey sokulmaz. Hemen doktora gidilmelidir."
+  },
+  {
+    "id": 20,
+    "question": "Turnike hangi durumda uygulanır?",
+    "options": [
+      "Küçük kesiklerde",
+      "Uzuv kopması/Durdurulamayan kanama",
+      "Burun kanamasında",
+      "Kılcal damar kanamasında"
+    ],
+    "correct": 1,
+    "explanation": "Turnike sadece uzuv kopması gibi durdurulamayan büyük kanamalarda veya çok sayıda yaralının olduğu durumlarda son çare olarak uygulanır."
+  },
+  {
+    "id": 21,
+    "question": "Şok pozisyonu nasıldır?",
+    "options": [
+      "Hasta oturtulur",
+      "Ayaklar 30 cm yukarı kaldırılır",
+      "Yüz üstü yatırılır",
+      "Baş aşağı sarkıtılır"
+    ],
+    "correct": 1,
+    "explanation": "Şok pozisyonunda hasta sırt üstü yatırılır ve ayakları 30 cm yukarı kaldırılarak hayati organlara kan gitmesi sağlanır."
+  },
+  {
+    "id": 22,
+    "question": "Rentek manevrası ne için kullanılır?",
+    "options": [
+      "Boğulmalarda",
+      "Araçtan çıkarma",
+      "Kırık tespitinde",
+      "Zehirlenmede"
+    ],
+    "correct": 1,
+    "explanation": "Rentek manevrası, yaralıyı araçtan omuriliğine zarar vermeden çıkarmak için kullanılan özel bir tekniktir."
+  },
+  {
+    "id": 23,
+    "question": "İlk yardımın ABC'si - A nedir?",
+    "options": [
+      "Solunum",
+      "Dolaşım",
+      "Havayolu açıklığı",
+      "Bilinc kontrolü"
+    ],
+    "correct": 2,
+    "explanation": "A (Airway): Havayolu açıklığının sağlanmasıdır (Baş-Çene pozisyonu)."
+  },
+  {
+    "id": 24,
+    "question": "İlk yardımın ABC'si - B nedir?",
+    "options": [
+      "Solunum",
+      "Dolaşım",
+      "Havayolu",
+      "Sindirimi"
+    ],
+    "correct": 0,
+    "explanation": "B (Breathing): Solunumun kontrol edilmesidir (Bak-Dinle-Hisset)."
+  },
+  {
+    "id": 25,
+    "question": "İlk yardımın ABC'si - C nedir?",
+    "options": [
+      "Solunum",
+      "Dolaşım",
+      "Havayolu",
+      "Sinir sistemi"
+    ],
+    "correct": 1,
+    "explanation": "C (Circulation): Dolaşımın sağlanmasıdır (Kalp masajı)."
+  },
+  {
+    "id": 26,
+    "question": "112 aranırken ne söylenmelidir?",
+    "options": [
+      "Olay yeri adresi",
+      "Hasta sayısı",
+      "Durum özeti",
+      "Hepsi"
+    ],
+    "correct": 3,
+    "explanation": "112 aranırken adres, hasta sayısı, durum özeti ve arayanın numarası gibi tüm bilgiler net bir şekilde verilmelidir."
+  },
+  {
+    "id": 27,
+    "question": "Delici göğüs yaralanmasında pozisyon?",
+    "options": [
+      "Sırt üstü",
+      "Yarı oturuş",
+      "Yüz üstü",
+      "Şok pozisyonu"
+    ],
+    "correct": 1,
+    "explanation": "Delici göğüs yaralanmasında hastanın daha rahat nefes alabilmesi için yarı oturuş pozisyonu verilir."
+  },
+  {
+    "id": 28,
+    "question": "Delici karın yaralanmasında organlar dışarıdaysa?",
+    "options": [
+      "İçeri itilir",
+      "Islak bezle örtülür",
+      "Kuru bezle bastırılır",
+      "Yıkanır"
+    ],
+    "correct": 1,
+    "explanation": "Dışarı çıkan organlar asla içeri itilmez. Üzeri temiz ve nemli (ıslak) bir bezle örtülerek korunur."
+  },
+  {
+    "id": 29,
+    "question": "Baş yaralanmalarında kaç saat gözlem yapılır?",
+    "options": [
+      "2 saat",
+      "6 saat",
+      "24 saat",
+      "48 saat"
+    ],
+    "correct": 2,
+    "explanation": "Baş yaralanmalarında beyin kanaması riski nedeniyle hasta 24 saat boyunca gözlem altında tutulmalıdır."
+  },
+  {
+    "id": 30,
+    "question": "Elektrik çarpmasında ilk ne yapılır?",
+    "options": [
+      "Su dökülür",
+      "Akım kesilir",
+      "Elle çekilir",
+      "Suni solunum yapılır"
+    ],
+    "correct": 1,
+    "explanation": "Elektrik çarpmasında yaralıya dokunmadan önce mutlaka elektrik akımı kesilmelidir."
+  },
+  {
+    "id": 31,
+    "question": "İkinci derece yanık belirtisi nedir?",
+    "options": [
+      "Kızarıklık",
+      "Bül (Su toplanması)",
+      "Kömürleşme",
+      "Ağrısızlık"
+    ],
+    "correct": 1,
+    "explanation": "İkinci derece yanıklarda deride kızarıklığın yanı sıra içi su dolu kabarcıklar (bül) oluşur."
+  },
+  {
+    "id": 32,
+    "question": "Üçüncü derece yanık özelliği nedir?",
+    "options": [
+      "Çok ağrılıdır",
+      "Sinir harabiyeti/Ağrısızlık",
+      "Sadece kızarıklık",
+      "Hafif yanık"
+    ],
+    "correct": 1,
+    "explanation": "Üçüncederece yanıklarda deri tabakalarının tamamı ve sinirler zarar gördüğü için ağrı hissedilmeyebilir."
+  },
+  {
+    "id": 33,
+    "question": "Kanamayı durdurmak için ilk yöntem?",
+    "options": [
+      "Turnike",
+      "Direkt baskı",
+      "Sıcak uygulama",
+      "Uzvu aşağı sarkıtma"
+    ],
+    "correct": 1,
+    "explanation": "Kanamayı durdurmak için ilk yapılması gereken yaranın üzerine temiz bir bezle direkt baskı uygulamaktır."
+  },
+  {
+    "id": 34,
+    "question": "İç kanama belirtisi nedir?",
+    "options": [
+      "Yavaş nabız",
+      "Hızlı zayıf nabız, soğuk terleme",
+      "Yüksek tansiyon",
+      "Kızarmış yüz"
+    ],
+    "correct": 1,
+    "explanation": "İç kanamada nabız hızlı ve zayıftır, hasta soğuk terler ve huzursuzdur."
+  },
+  {
+    "id": 35,
+    "question": "Kalp spazmı ağrısı ne kadar sürer?",
+    "options": [
+      "1-2 dk",
+      "5-10 dk",
+      "1 saat",
+      "Tüm gün"
+    ],
+    "correct": 1,
+    "explanation": "Kalp spazmı (Angina Pectoris) ağrısı genellikle 5-10 dakika sürer ve dinlenmekle geçer."
+  },
+  {
+    "id": 36,
+    "question": "Kalp krizi ağrısı özelliği?",
+    "options": [
+      "Dinlenmekle geçer",
+      "Dinlenmekle geçmez",
+      "Sadece kolda olur",
+      "Nefes alınca geçer"
+    ],
+    "correct": 1,
+    "explanation": "Kalp krizi ağrısı şiddetlidir, dinlenmekle geçmez ve genellikle 20 dakikadan uzun sürer."
+  },
+  {
+    "id": 37,
+    "question": "Boğulmalarda ilk yardım?",
+    "options": [
+      "Sırtına vurulur",
+      "Su dışına çıkarma, solunum kontrolü",
+      "Kusturulur",
+      "Ters çevrilir"
+    ],
+    "correct": 1,
+    "explanation": "Boğulmalarda yaralı sudan çıkarıldıktan sonra hemen solunum kontrolü yapılmalı ve gerekirse temel yaşam desteğine başlanmalıdır."
+  },
+  {
+    "id": 38,
+    "question": "Kedi tırmalamasında risk nedir?",
+    "options": [
+      "Kuduz/Tetanos",
+      "Grip",
+      "Kızamık",
+      "Zatürre"
+    ],
+    "correct": 0,
+    "explanation": "Kedi ve köpek tırmalamaları/ısırmaları kuduz ve tetanos riski taşıdığı için mutlaka tıbbi yardım alınmalıdır."
+  },
+  {
+    "id": 39,
+    "question": "Deniz canlıları sokmasında ne yapılır?",
+    "options": [
+      "Soğuk uygulama",
+      "Sıcak uygulama (Toksin için)",
+      "Sirke dökülür",
+      "Yara kesilir"
+    ],
+    "correct": 1,
+    "explanation": "Deniz canlılarının (deniz anası vb.) toksinleri protein yapıda olduğu için sıcak uygulama (sıcak su) toksini etkisiz hale getirebilir."
+  },
+  {
+    "id": 40,
+    "question": "İlk yardımcıda bulunması gereken özellik?",
+    "options": [
+      "Panik yapmalı",
+      "Sakin/Hızlı/Kendine güvenen",
+      "Doktor olmalı",
+      "Çok konuşmalı"
+    ],
+    "correct": 1,
+    "explanation": "İlk yardımcı her zaman sakin kalmalı, hızlı karar verebilmeli ve çevresindekileri organize edebilmelidir."
+  },
+  {
+    "id": 41,
+    "question": "Olay yerinde hasta taşıma kuralı?",
+    "options": [
+      "Hızlıca koşturulur",
+      "En az hareket",
+      "Sırtlanarak taşınır",
+      "Sürüklenir"
+    ],
+    "correct": 1,
+    "explanation": "Yaralı taşınırken omurga düzlemi korunmalı ve mümkün olan en az hareketle taşıma gerçekleştirilmelidir."
+  },
+  {
+    "id": 42,
+    "question": "Kaşık tekniği kaç kişiyle yapılır?",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "5"
+    ],
+    "correct": 2,
+    "explanation": "Kaşık tekniği, yaralıyı yerden kaldırmak için en az 3 ilk yardımcı tarafından uygulanır."
+  },
+  {
+    "id": 43,
+    "question": "Sedye ile taşıma kuralı?",
+    "options": [
+      "Ayaklar gidiş yönünde",
+      "Baş gidiş yönünde",
+      "Yan yatırılarak",
+      "Baş aşağıda"
+    ],
+    "correct": 1,
+    "explanation": "Sedye ile taşımada yaralının başı gidiş yönünde olmalı, böylece ilk yardımcı hastanın yüzünü görebilmelidir."
+  },
+  {
+    "id": 44,
+    "question": "Kanamalarda baskı noktası - Kasık nereyi etkiler?",
+    "options": [
+      "Kol",
+      "Bacak",
+      "Baş",
+      "Boyun"
+    ],
+    "correct": 1,
+    "explanation": "Kasık üzerindeki baskı noktası, bacak bölgesindeki kanamaları kontrol etmek için kullanılır."
+  },
+  {
+    "id": 45,
+    "question": "Köprücük kemiği arkası baskı noktası nereyi etkiler?",
+    "options": [
+      "Ayak",
+      "Kol",
+      "Karın",
+      "Yüz"
+    ],
+    "correct": 1,
+    "explanation": "Köprücük kemiği arkasındaki baskı noktası, kol bölgesindeki kanamaları durdurmak için kullanılır."
+  },
+  {
+    "id": 46,
+    "question": "Şeker koması belirtisi nedir?",
+    "options": [
+      "Aseton kokusu",
+      "Çiçek kokusu",
+      "Ter kokusu",
+      "Koku olmaz"
+    ],
+    "correct": 0,
+    "explanation": "Şeker komasında (hiperglisemi) hastanın nefesinde aseton kokusu benzeri bir koku duyulabilir."
+  },
+  {
+    "id": 47,
+    "question": "Kısmi tıkanıklıkta ne yapılır?",
+    "options": [
+      "Heimlich yapılır",
+      "Öksürmeye teşvik edilir",
+      "Sırtına vurulur",
+      "Su içirilir"
+    ],
+    "correct": 1,
+    "explanation": "Kısmi tıkanıklıkta (hasta öksürebiliyor ve konuşabiliyorsa) hastaya dokunulmaz, sadece öksürmeye teşvik edilir."
+  },
+  {
+    "id": 48,
+    "question": "Bebeklerde kalp masajı nereye yapılır?",
+    "options": [
+      "Karın üstüne",
+      "İki meme başı ortasının altına",
+      "Omuz arasına",
+      "Boğaza"
+    ],
+    "correct": 1,
+    "explanation": "Bebeklerde kalp masajı, iki meme başı arasındaki hayali çizginin hemen altına, iki parmakla yapılır."
+  },
+  {
+    "id": 49,
+    "question": "Çocuklarda kalp masajı nasıl yapılır?",
+    "options": [
+      "Sadece parmakla",
+      "Vücut yapısına göre tek veya çift elle",
+      "Sadece çift elle",
+      "Yapılmaz"
+    ],
+    "correct": 1,
+    "explanation": "Çocuklarda kalp masajı, çocuğun vücut yapısına göre tek elle veya çift elle göğüs kemiği 5 cm inecek şekilde yapılır."
+  },
+  {
+    "id": 50,
+    "question": "İlk yardımın tanımı nedir?",
+    "options": [
+      "İlaçlı tedavi",
+      "İlaçsız müdahale",
+      "Ameliyat",
+      "Hastanede yapılan bakım"
+    ],
+    "correct": 1,
+    "explanation": "İlk yardım; olay yerinde, tıbbi araç gereç aranmaksızın, mevcut imkanlarla yapılan ilaçsız müdahaledir."
+  }
+]
